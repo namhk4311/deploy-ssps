@@ -1,0 +1,111 @@
+.print-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.38);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dialog-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    width: 624px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-container {
+    margin-bottom: 24px;
+  }
+  
+  .dialog-heading {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1c2024;
+    margin-bottom: 8px;
+  }
+  
+  .dialog-description {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #1c2024;
+  }
+  
+  .tab-navigation {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .tab {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #1c2024;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .tab.active {
+    border-bottom: 2px solid #3e63dd;
+  }
+  
+  .file-upload-area {
+    background-color: #ffe4a5;
+    border: 1px dashed #3e63dd;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 24px;
+  }
+  
+  .upload-icon img {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 16px;
+  }
+  
+  .upload-text {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: #606060;
+  }
+  
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .cancel-button,
+  .continue-button {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .cancel-button {
+    background-color: #f0f0f0;
+    color: #60646c;
+  }
+  
+  .continue-button {
+    background-color: #3e63dd;
+    color: #ffffff;
+  }
+  
