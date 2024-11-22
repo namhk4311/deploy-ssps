@@ -11,6 +11,7 @@
   }
   
   .dialog-container {
+    position: relative;
     background-color: #ffffff;
     border-radius: 8px;
     width: 624px;
@@ -32,12 +33,12 @@
 
   .dialog-close-button {
     position: absolute;
-    top: 100px;
-    right: 470px;
+    top: 12px;
+    right: 12px;
     font-family: 'Roboto', sans-serif;
     font-weight: 700;
     font-size: 14px;
-    color: #1c2024;
+    color: #2a2c2d;
     background: none;
     border: none;
     cursor: pointer;
