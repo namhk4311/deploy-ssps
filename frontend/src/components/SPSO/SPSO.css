@@ -12,7 +12,7 @@ body {
 
 }
 
-.dashboard {
+.SPSO {
   display: flex;
   flex-direction: column;
   font-family: 'Roboto', sans-serif;
@@ -258,7 +258,6 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-
   border-bottom: none;
   padding: 0;
 }
@@ -299,6 +298,70 @@ body {
 }
 
 .document-details {
+  font-size: 12px;
+  font-weight: 400;
+  color: #666666;
+}
+
+.list-of-printers {
+  /* width: 80%;
+  margin: 10px auto; */
+  min-height: 400px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.list-of-printers.narrow {
+  width: 80%;
+  margin: 10px auto;
+}
+
+.list-of-printers .listheader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: none;
+  padding: 0;
+}
+
+.list-of-printers .listheader h2 {
+  font-size: 24px;
+  font-weight: 400;
+  color: #000000;
+}
+
+.list-of-printers .listheader a {
+  font-size: 14px;
+  color: #3C47DC;
+  text-decoration: none;
+}
+
+.printers-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.printers-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+}
+
+.printers-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.printers-name {
+  font-size: 14px;
+  font-weight: 400;
+  color: #000000;
+}
+
+.printers-details {
   font-size: 12px;
   font-weight: 400;
   color: #666666;
