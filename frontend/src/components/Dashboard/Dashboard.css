@@ -2,65 +2,68 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background-color: #5962db
-}
+  /* background-color: #1488D8; */
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  background: url('image/bg.png');
+  background-image: "image/bg.png";
+  background-size: cover;
 
-.smart-printing-service {
-  display: grid;
-  grid-template-areas:
-    "left nav right"
-    "left main right"
-    "left footer footer";
-  grid-template-columns: 200px 1fr 300px;
-  grid-template-rows: auto 1fr auto;
-  height: 100vh;
-  gap: 16px;
 }
 
 .dashboard {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+  width: 100vw;
+  max-height: 1024vh;
 }
 
 .main-content {
-  grid-area: main;
   display: flex;
   flex: 1;
-  padding: 0px;
-  width: 900px;
-  background-color: #ffffff;
+  padding: 0;
+  gap: 0;
+  width: 100%;
 }
 
 .left-menu {
-  grid-area: left;
-  width: 200px;
+  width: 300px;
   background-color: #ffffff;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
+.left-menu.hidden {
+  transform: translateX(-100%);
+}
+
 .profile {
+  position: absolute;
   display: flex;
+  top: 10px;
+  right: 20px;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
 }
 
 .profile img {
-  border-radius: 50%;
-  margin-bottom: 10px;
-  width: 50px; 
+  width: 32px;
+  height: 32px;
 }
 
 .logout {
-  color: red;
+  color: #303030;
   text-decoration: none;
   font-size: 14px;
   font-weight: 400;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 .stats {
@@ -68,11 +71,10 @@ body {
 }
 
 .stat-item {
-  background-color: #ffffff;
+  background-color: #f8f9fa;
   padding: 10px;
   margin-bottom: 10px;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-  text-align: center;
+  
 }
 
 .stat-item span:first-child {
@@ -85,89 +87,120 @@ body {
   font-weight: 700;
   font-size: 14px;
   color: #000000;
+  float: right;
 }
 
 .content {
   flex-grow: 1;
-  padding: 0 10px;
-  margin: 0 auto;
+  padding: 10px;
+  width: 100%;
 }
 
 .welcome {
+  display: flex; 
+  flex-direction: column; 
   text-align: center;
-  margin-bottom: 40px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
   background-color: #ffffff;
   padding: 20px;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  background-color: rgba(255, 255, 255, 0.9);
+  height: 200px;
+}
+
+.welcome.narrow {
+  width: 80%;
+  margin: 10px auto;
 }
 
 .welcome h1 {
-  font-size: 20px;
-  color: #3C47DC;
-  font-weight: 400;
+  font-size: 22px;
+  color: #0404a2;
+  font-weight: 600;
   margin-bottom: 10px;
 }
 
 .welcome h2 {
-  font-size: 36px;
-  color: #3C47DC;
-  font-weight: 400;
+  font-size: 38px;
+  color: #030391;
+  font-weight: 600;
   margin: 0;
 }
 
 .right-menu {
-  grid-area: right;
-  width: 300px;
+  width: 30%;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0px;
+  background-color: #ffffff;
 }
 
-.header {
+/* .header {
   display: flex;
   justify-content: center;
   padding: 10px;
   background-color: #ffffff;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  border-bottom: 1px solid #E5E5E5;
+} */
+
+.header {
+  display: flex;
+  justify-content: center; /* Center the navigation menu */
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #E5E5E5;
+  position: relative; /* Allow absolute positioning for children */
+}
+
+.hamburger {
+  position: absolute;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  top: 10px;
+  left: 20px;
 }
 
 .nav {
-  /* display: flex;
-  gap: 50px; */
-
-  grid-area: nav;
   display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 10px 0;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  gap: 50px;
 }
 
 .nav-link {
   text-decoration: none;
-  color: #000000;
+  color: #303030;
   font-size: 20px;
-  font-weight: 400;
+  font-weight: 550;
+  height: 100%;
 }
 
+.nav-link:hover {
+  background-color: #132d64;
+  color: #ffffff;
+}
 .nav-link.active {
   font-weight: 700;
   color: #3C47DC;
 }
 
+.nav-link.active:hover {
+  background-color: #132d64;
+  color: #ffffff;
+}
+
 .footer {
-  grid-area: footer;
-  background-color: #ffffff;
+  background-color: #132d64;
   padding: 20px;
-  box-shadow: 0px -4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .footer-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -182,8 +215,8 @@ body {
 
 .footer-logo-text {
   font-weight: 400;
-  font-size: 14px;
-  color: #000000;
+  font-size: 16px;
+  color: #ffffff;
 }
 
 .footer-info {
@@ -195,38 +228,46 @@ body {
   margin-bottom: 10px;
   font-weight: 700;
   font-size: 14px;
-  color: #000000;
+  color: #ffffff;
 }
 
 .footer-section p {
   margin: 5px 0;
   font-weight: 400;
   font-size: 14px;
-  color: #000000;
+  color: #ffffff;
 }
 
 .recent-prints {
-  background-color: #ffffff;
+  /* width: 80%;
+  margin: 10px auto; */
+  background-color: rgba(255, 255, 255, 0.9);
   padding: 20px;
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
-.recent-prints .header {
+.recent-prints.narrow {
+  width: 80%;
+  margin: 10px auto;
+}
+
+.recent-prints .recentheader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  box-shadow: none;
+
+  border-bottom: none;
   padding: 0;
 }
 
-.recent-prints .header h2 {
+.recent-prints .recentheader h2 {
   font-size: 24px;
   font-weight: 400;
   color: #000000;
 }
 
-.recent-prints .header a {
+.recent-prints .recentheader a {
   font-size: 14px;
   color: #3C47DC;
   text-decoration: none;
@@ -269,13 +310,13 @@ body {
 
 .current-print-order h2 {
   font-weight: 400;
-  font-size: 24px;
+  font-size: 22px;
   color: #000000;
   margin-bottom: 20px;
 }
 
 .print-order-status {
-  text-align: center;
+  text-align: center; 
   background-color: #ffffff;
   padding: 20px;
   border: 1px solid #E5E5E5;
@@ -298,8 +339,7 @@ body {
 .calendar-container {
   background-color: #ffffff;
   padding: 20px;
-  height: 1000px;
-  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+  /* box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25); */
 }
 
 .calendar-header {
@@ -310,7 +350,7 @@ body {
 }
 
 .calendar-title {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 400;
   color: #000000;
 }
