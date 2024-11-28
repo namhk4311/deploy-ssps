@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react'
+import React, { useState } from 'react';
 import './Dashboard.css';
 import PrintDialog from '../Print/Print';
 import PrinterSelectionDialog from '../Print2/Print2';
@@ -7,7 +6,7 @@ import PrintConfirmationDialog from '../Print3/Print3';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'
 interface DashboardProps {
-  // onLogout: () => void;
+   onLogout: () => void;
 }
 
 interface Printer {
@@ -18,34 +17,39 @@ interface Printer {
 
 interface HeaderProps {
   onOpenPrintDialog: () => void;
+  onLogout: () => void;
+  onToggleMenu: () => void;
 }
 
 interface CurrentPrintOrderProps {
-  onCreatePrintOrder: () => void; 
+  onCreatePrintOrder: () => void;
 }
 
+interface RecentPrintsProps {
+  isMenuOpen: boolean;
+}
 
-const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog }) => {
-  const [auth, setAuth] = React.useState(false);
-  React.useEffect(() => {
-    axios.get('http://localhost:8081')
-    .then(res => {
-        if (res.data.Status === "Success") {
-            setAuth(true);
-        } else {
-            setAuth(false);
-        }
-    })
-  }, [])
-  
-  console.log(auth);
+const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onToggleMenu, onLogout }) => {
   return (
     <header className="header">
+      <div className="hamburger" onClick={onToggleMenu}>
+        ☰
+      </div>
+
       <nav className="nav">
         <a href="#" className="nav-link active">Trang chủ</a>
         <a href="#" className="nav-link" onClick={onOpenPrintDialog}>In tài liệu</a>
         <a href="#" className="nav-link">Thêm số trang</a>
+        <a href="#" className="nav-link">Hỗ trợ</a>
       </nav>
+      <div className="profile">
+            <img src="/image/user.png" alt="Profile" />
+            <a href="#" className="logout" onClick={(e) => {
+            e.preventDefault();
+            onLogout();}}>
+            Đăng xuất</a>
+      </div>
+      
     </header>
   );
 };
@@ -55,7 +59,7 @@ const Footer: React.FC = () => {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-logo">
-          <img src="image/bk.png" alt="Logo" width="62" height="60" />
+          <img src="/image/bk.png" alt="Logo" width="80" height="80" />
           <span className="footer-logo-text">HCMUT Student Smart Printing Service</span>
         </div>
         <div className="footer-info">
@@ -66,8 +70,8 @@ const Footer: React.FC = () => {
           </div>
           <div className="footer-section">
             <h4>Liên hệ</h4>
-            <p><span className="icon">📍</span> 268 Lý Thường Kiệt, P.14, Q.10, TP.HCM</p>
-            <p><span className="icon">✉️</span> ssp@hcmut.edu.vn</p>
+            <p>268 Lý Thường Kiệt, P.14, Q.10, TP.HCM</p>
+            <p>ssp@hcmut.edu.vn</p>
           </div>
         </div>
       </div>
@@ -75,7 +79,7 @@ const Footer: React.FC = () => {
   );
 };
 
-const RecentPrints: React.FC = () => {
+const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
   const documents = [
     { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
     { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
@@ -84,15 +88,15 @@ const RecentPrints: React.FC = () => {
   ];
 
   return (
-    <div className="recent-prints">
-      <div className="header">
+    <div className={`recent-prints ${!isMenuOpen ? "narrow" : ""}`}>
+      <div className="recentheader">
         <h2>Đã in gần đây</h2>
         <a href="#">Xem tất cả</a>
       </div>
       <ul>
         {documents.map((doc, index) => (
           <li key={index} className="document-item">
-            <img src="image/user.png" alt="Document Icon" className="document-icon" />
+            <img src="/placeholder.svg?height=24&width=24" alt="Document Icon" className="document-icon" />
             <div className="document-info">
               <span className="document-name">{doc.name}</span>
               <span className="document-details">{doc.pages} trang • {doc.time} {doc.date}</span>
@@ -111,7 +115,7 @@ const CurrentPrintOrder: React.FC<CurrentPrintOrderProps> = ({ onCreatePrintOrde
       <div className="print-order-status">
         <p>Không có gì đang được in</p>
         <a href="#" onClick={(e) => {
-          e.preventDefault(); 
+          e.preventDefault();
           onCreatePrintOrder();
         }}>
           Tạo lệnh in
@@ -129,7 +133,7 @@ const Calendar: React.FC = () => {
         <span className="calendar-date">10/2024 ▼</span>
       </div>
       <div className="calendar-grid">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, index) => (
+        {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day, index) => (
           <div key={index} className="calendar-day-name">{day}</div>
         ))}
         {[...Array(31)].map((_, index) => (
@@ -154,21 +158,7 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const Dashboard: React.FC<DashboardProps> = (/*{ onLogout } */) => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    axios.get('http://localhost:8081/logout')
-        .then(res => {
-            if (res.data.Status === "Success") {
-              navigate('/login');
-            }
-            else {
-                alert("error");
-            }
-        }).catch(err => console.log(err))
-  };
-
+const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>(
     'none'
   );
@@ -196,23 +186,28 @@ const Dashboard: React.FC<DashboardProps> = (/*{ onLogout } */) => {
   };
 
   const handleSelectPrinter = (printer: Printer) => {
-    setSelectedPrinter(printer); 
-    setCurrentDialog('print-confirmation'); 
+    setSelectedPrinter(printer);
+    setCurrentDialog('print-confirmation');
   };
 
   const handleBackToPrinterSelection = () => {
     setCurrentDialog('printer-selection');
   };
 
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div className="dashboard">
-      <Header onOpenPrintDialog={handleOpenPrintDialog} />
+      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={onLogout} onToggleMenu={toggleMenu} />
       <div className="main-content">
         <div className="left-menu">
           <div className="profile">
             <img src="image/user.png" alt="Profile" />
-            <a href="#" className="logout" onClick={handleLogout}>Đăng xuất</a>
+            <a href="#" className="logout" onClick={onLogout}>Đăng xuất</a>
           </div>
           <div className="stats">
             <div className="stat-item">
@@ -229,15 +224,16 @@ const Dashboard: React.FC<DashboardProps> = (/*{ onLogout } */) => {
             </div>
           </div>
         </div>
+      
         <div className="content">
-          <div className="welcome">
+        <div className={`welcome ${!isMenuOpen ? "narrow" : ""}`}>
             <h1>Ho Chi Minh City University Of Technology</h1>
             <h2>Student Smart Printing Service</h2>
           </div>
-          <RecentPrints />
+          <RecentPrints isMenuOpen={isMenuOpen} />
         </div>
         <div className="right-menu">
-        <CurrentPrintOrder onCreatePrintOrder={handleOpenPrintDialog} />
+          <CurrentPrintOrder onCreatePrintOrder={handleOpenPrintDialog} />
           <Calendar />
         </div>
       </div>
@@ -254,11 +250,11 @@ const Dashboard: React.FC<DashboardProps> = (/*{ onLogout } */) => {
         />
       )}
       {currentDialog === 'print-confirmation' && (
-        <PrintConfirmationDialog 
-        selectedPrinter={selectedPrinter}
-        onBack={handleBackToPrinterSelection} 
-        onClose={handleCloseDialog} 
-        onChangePrinter={handleBackToPrinterSelection} 
+        <PrintConfirmationDialog
+          selectedPrinter={selectedPrinter}
+          onBack={handleBackToPrinterSelection}
+          onClose={handleCloseDialog}
+          onChangePrinter={handleBackToPrinterSelection}
         />
       )}
     </div>
