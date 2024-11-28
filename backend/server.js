@@ -2,12 +2,20 @@ const express = require('express')
 const mysql = require('mysql2');
 const cors = require('cors')
 const router = require('./routes');
+const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const PORT = 8081;
 
 
 const app = express();
-app.use(cors());
+app.use(cors(
+    {
+        origin: ["http://localhost:5173"],
+        methods: ["POST", "GET"],
+        credentials: true
+    }
+));
+app.use(cookieParser());
 app.use(express.json());
 
 const db = mysql.createConnection({
@@ -32,27 +40,50 @@ app.post('/signup', (req, res) => {
     })
 })
 
-const verifyJwt = (req, res, next) => {
-    const token = req.headers["access-token"];
+// const verifyJwt = (req, res, next) => {
+//     const token = req.headers["access-token"];
+//     if (!token) {
+//         return res.json("We need token please provide it for next time");
+//     }
+//     else {
+//         jwt.verify(token, "jwtSecretKey", (err, decoded) => {
+//             if (err) {
+//                 res.json("Not authenticated");
+//             }
+//             else {
+//                 req.userId = decoded.id;
+//                 next();
+//             }
+//         })
+//     }
+// }
+
+// app.get('/checkauth', verifyJwt, (req, res) => {
+//     return res.json("Authenticated");
+// })
+
+const verifyUser = (req, res, next) => {
+    const token = req.cookies.token;
     if (!token) {
-        return res.json("We need token please provide it for next time");
+        return res.json({Message: "we need token please provide it."})
     }
     else {
         jwt.verify(token, "jwtSecretKey", (err, decoded) => {
             if (err) {
-                res.json("Not authenticated");
+                return res.json({Message: "Authentication Error"})
             }
             else {
-                req.userId = decoded.id;
+                req.name = decoded.name;
                 next();
             }
-        })
+        }) 
     }
 }
 
-app.get('/checkauth', verifyJwt, (req, res) => {
-    return res.json("Authenticated");
+app.get('/', verifyUser, (req, res) => {
+    return res.json({Status: "Success", name: req.name})
 })
+
 
 app.post('/login', (req, res) => {
     const sql = "SELECT * FROM USER WHERE `Email` = ? AND `Password` = ?";
@@ -60,18 +91,25 @@ app.post('/login', (req, res) => {
         if (err) return res.json("Error");
         if (data.length > 0) {
             const id = data[0].id;
-            const token = jwt.sign({id}, "jwtSecretKey", {expiresIn: 300})
+            const token = jwt.sign({id}, "jwtSecretKey", {expiresIn: '1d'});
+            res.cookie('token', token);
             return res.json({Login: true, token, data});
         }
         else {
-            return res.json("Fail");
+            return res.json({Message: "No records existed"});
         }
     })
 })
 
-app.get('/', (req, res) => {
-    res.send({data: "Here is my data"});
+app.get('/logout', (req, res) => {
+    res.clearCookie('token');
+    return res.json({Status: "Success"})
 })
+
+
+// app.get('/', (req, res) => {
+//     res.send({data: "Here is my data"});
+// })
 
 app.use('/routes', router);
 

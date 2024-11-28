@@ -4,9 +4,10 @@ import './Dashboard.css';
 import PrintDialog from '../Print/Print';
 import PrinterSelectionDialog from '../Print2/Print2';
 import PrintConfirmationDialog from '../Print3/Print3';
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'
 interface DashboardProps {
-  onLogout: () => void;
+  // onLogout: () => void;
 }
 
 interface Printer {
@@ -25,6 +26,19 @@ interface CurrentPrintOrderProps {
 
 
 const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog }) => {
+  const [auth, setAuth] = React.useState(false);
+  React.useEffect(() => {
+    axios.get('http://localhost:8081')
+    .then(res => {
+        if (res.data.Status === "Success") {
+            setAuth(true);
+        } else {
+            setAuth(false);
+        }
+    })
+  }, [])
+  
+  console.log(auth);
   return (
     <header className="header">
       <nav className="nav">
@@ -140,7 +154,21 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+const Dashboard: React.FC<DashboardProps> = (/*{ onLogout } */) => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    axios.get('http://localhost:8081/logout')
+        .then(res => {
+            if (res.data.Status === "Success") {
+              navigate('/login');
+            }
+            else {
+                alert("error");
+            }
+        }).catch(err => console.log(err))
+  };
+
   const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>(
     'none'
   );
@@ -184,7 +212,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         <div className="left-menu">
           <div className="profile">
             <img src="image/user.png" alt="Profile" />
-            <a href="#" className="logout" onClick={onLogout}>Đăng xuất</a>
+            <a href="#" className="logout" onClick={handleLogout}>Đăng xuất</a>
           </div>
           <div className="stats">
             <div className="stat-item">
