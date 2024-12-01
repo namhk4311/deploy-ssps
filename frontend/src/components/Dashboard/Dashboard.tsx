@@ -5,8 +5,11 @@ import PrinterSelectionDialog from '../Print2/Print2';
 import PrintConfirmationDialog from '../Print3/Print3';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'
+import {Link} from 'react-router-dom'
+
+
 interface DashboardProps {
-   onLogout: () => void;
+  //  onLogout: () => void;
 }
 
 interface Printer {
@@ -45,9 +48,13 @@ const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onToggleMenu, onLogo
       <div className="profile">
             <img src="/image/user.png" alt="Profile" />
             <a href="#" className="logout" onClick={(e) => {
-            e.preventDefault();
-            onLogout();}}>
-            Đăng xuất</a>
+                e.preventDefault();
+                onLogout();
+              }
+            }>
+                Đăng xuất
+            </a>
+            {/* <Link to="/login" className='logout'>Đăng xuất</Link> */}
       </div>
       
     </header>
@@ -158,7 +165,7 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+const Dashboard: React.FC<DashboardProps> = () => {
   const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>(
     'none'
   );
@@ -200,14 +207,31 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  /*logout handle function */
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    axios.get('http://localhost:8081/api/user/logout')
+        .then(res => {
+            if (res.data.Status === "Success") {
+              navigate('/');
+            }
+            else {
+                alert("error");
+            }
+        }).catch(err => console.log(err))
+  };
+
+
+
   return (
     <div className="dashboard">
-      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={onLogout} onToggleMenu={toggleMenu} />
+      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={handleLogout} onToggleMenu={toggleMenu} />
       <div className="main-content">
         <div className="left-menu">
           <div className="profile">
-            <img src="image/user.png" alt="Profile" />
-            <a href="#" className="logout" onClick={onLogout}>Đăng xuất</a>
+            {/* <img src="image/user.png" alt="Profile" /> */}
+            {/* <a href="#" className="logout" onClick={onLogout}>Đăng xuất</a> */}
           </div>
           <div className="stats">
             <div className="stat-item">

@@ -6,9 +6,10 @@ import './Login.css';
 
 interface LoginProps {
   // onLogin: () => void;
+    roleSelected: 'student' | 'admin' | null;
 }
 
-const Login = () => {
+const Login: React.FC<LoginProps> = ({roleSelected}) => {
   const [value, setValue] = React.useState({
       email: '',
       password: '',
@@ -27,12 +28,17 @@ const Login = () => {
       e.preventDefault();
       // setErrors(Validation(value));
       if (errors.email === "" && errors.password === "") {
-        axios.post('http://localhost:8081/login', value) 
+        axios.post('http://localhost:8081/api/user/login', value) 
         .then(res => {
           console.log(res.data.Login);
           if (res.data.Login) {
             localStorage.setItem("token", res.data.token);
-            navigate('/');
+            if (roleSelected === 'student') {
+              navigate('/student');
+            }
+            else if (roleSelected === 'admin') {
+              navigate('/spso');
+            }
           }
           else {
             alert('Invalid email/password');

@@ -11,13 +11,16 @@ import Role from './components/Role/Role'
 import SPSO from './components/SPSO/SPSO'
 
 
+
 function App() {
   const [currentPage, setCurrentPage] = useState<'role' | 'login' | 'dashboard' | 'spso'>('role');
   const [role, setRole] = useState<'student' | 'admin' | null>(null);
 
+
   const handleRoleSelection = (selectedRole: 'student' | 'admin') => {
     setRole(selectedRole);
-    setCurrentPage('login');
+    // setCurrentPage('login');
+    console.log(selectedRole);
   };
 
   const handleLogin = () => {
@@ -46,25 +49,30 @@ function App() {
       ) : (
         <Dashboard onLogout={handleLogout} />
       )} */}
-            const handleLogout = () => {
-              setCurrentPage('role');
-              setRole(null);
-            };
-        <BrowserRouter>
-            <Routes>
-              <Route path='/' element={<Dashboard onLogout={handleLogout} />} />
-              <Route path='/login' element={<Login />} />
-            </Routes>
-          </BrowserRouter>
-      
+            // const handleLogout = () => {
+            //   setCurrentPage('role');
+            //   setRole(null);
+            // };
+      function handleLogout() {
+
+      }
+
       return (
         <>
-      {currentPage === 'role' && <Role onSelectRole={handleRoleSelection} />}
-      {currentPage === 'login' && <Login />}
-      {currentPage === 'dashboard' && <Dashboard onLogout={handleLogout} />}
-      {currentPage === 'spso' && <SPSO onLogout={handleLogout} />}
-    </>
-  );
+          <BrowserRouter>
+              <Routes>
+                <Route path='/' element={<Role onSelectRole={handleRoleSelection} />} />
+                <Route path='/student' element={<Dashboard/>} />
+                <Route path='/login' element={<Login roleSelected={role} />} />
+                <Route path='/spso' element={<SPSO onLogout={handleLogout} />} />
+              </Routes>
+            </BrowserRouter>
+        {/* {currentPage === 'role' && <Role onSelectRole={handleRoleSelection} />}
+        {currentPage === 'login' && <Login />}
+        {currentPage === 'dashboard' && <Dashboard onLogout={handleLogout} />}
+        {currentPage === 'spso' && <SPSO onLogout={handleLogout} />} */}
+        </>
+       );
 }
 
 export default App;

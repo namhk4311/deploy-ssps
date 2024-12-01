@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./SPSO.css";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface SPSOProps {
   onLogout: () => void;
@@ -288,7 +290,7 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ isMenuOpen }) => {
   );
 };
 
-const SPSO: React.FC<SPSOProps> = ({ onLogout }) => {
+const SPSO: React.FC<SPSOProps> = () => {
   const [currentView, setCurrentView] = useState<
     "recentPrints" | "listOfPrinters"
   >("recentPrints");
@@ -306,11 +308,27 @@ const SPSO: React.FC<SPSOProps> = ({ onLogout }) => {
     setCurrentView("recentPrints"); // Reset to the main page
   };
 
+
+  const navigate = useNavigate();
+
+  /*logout handle function */
+  const handleLogout = () => {
+    axios.get('http://localhost:8081/api/user/logout')
+        .then(res => {
+            if (res.data.Status === "Success") {
+              navigate('/');
+            }
+            else {
+                alert("error");
+            }
+        }).catch(err => console.log(err))
+  };
+
   return (
     <div className="SPSO">
       <Header
         onOpenPrintDialog={handleOpenPrintDialog}
-        onLogout={onLogout}
+        onLogout={handleLogout}
         onToggleMenu={toggleMenu}
         onGoToHomePage={handleGoToHomePage}
       />
