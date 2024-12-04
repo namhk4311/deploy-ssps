@@ -28,7 +28,7 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
 const TabNavigation: React.FC = () => {
   return (
     <div className="tab-navigation">
-      <button className="tab active">Tải lên một tập tin</button>
+      <button className="tab">Tải lên một tập tin</button>
       <button className="tab">Các tập tin gần đây</button>
       <button className="tab">Google Drive</button>
     </div>

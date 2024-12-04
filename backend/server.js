@@ -113,8 +113,6 @@ app.use('/api', router);
 
 
 
-
-
 app.listen(PORT, () => {
-    console.log("Listening");
+    console.log("Listening server port 8081");
 })

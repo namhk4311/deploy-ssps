@@ -163,18 +163,41 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
 };
 
 const ListOfPrinter: React.FC<ListOfPrinterProps> = ({ isMenuOpen }) => {
-  const printers = [
-    {
-      name: "Máy in A",
-      location: "Tầng 2 - Tòa B4",
-      features: ["1 mặt", "2 mặt", "In trắng đen", "A3"],
-    },
-    {
-      name: "Máy in B",
-      location: "Tầng 2 - Tòa B4",
-      features: ["1 mặt", "2 mặt", "In trắng đen", "A4"],
-    }
-  ];
+
+  const [allPrinter, setAllPrinter] = React.useState([{PrID: null, Model: '', Floor: '', Campus: '', Short_description: '', Building: ''}]);
+  React.useEffect(() => {
+    // function getAllData() {
+    //   axios.get('http://localhost:8081/api/printer/all').
+    //   then(res => {
+    //     setAllPrinter(res.data);
+    //   });
+    // }
+    // getAllData();
+    axios.get('http://localhost:8081/api/printer/all').
+    then(res => {
+      setAllPrinter(res.data);
+    });
+  }, [])
+
+  console.log(allPrinter);
+
+  var printers; //= [
+  //   {
+  //     name: "Máy in A",
+  //     location: "Tầng 2 - Tòa B4",
+  //     features: ["1 mặt", "2 mặt", "In trắng đen", "A3"],
+  //   },
+  //   {
+  //     name: "Máy in B",
+  //     location: "Tầng 2 - Tòa B4",
+  //     features: ["1 mặt", "2 mặt", "In trắng đen", "A4"],
+  //   }
+  // ];
+
+  printers = allPrinter.slice(0, 6).map(
+      (printer) => ({name: printer.Model, location: `Phòng ${printer.Floor} - Toà ${printer.Building}`, features: [`${printer.Short_description}`]})
+  );
+
 
   return (
     <div className={`list-of-printers ${!isMenuOpen ? "narrow" : ""}`}>
@@ -193,7 +216,7 @@ const ListOfPrinter: React.FC<ListOfPrinterProps> = ({ isMenuOpen }) => {
             <div className="printers-info">
               <span className="printers-name">{printer.name}</span>
               <span className="printers-details">
-                {printer.location} trang • {printer.features}
+                {printer.location} • {printer.features}
               </span>
             </div>
           </li>
@@ -265,6 +288,20 @@ const getDayClass = (day: number): string => {
 const LeftMenu: React.FC<LeftMenuProps> = ({ isMenuOpen }) => {
   if (!isMenuOpen) return null; // Return null if the menu is not open
 
+  const [allPrinter, setAllPrinter] = React.useState([]);
+
+  React.useEffect(() => {
+    axios.get('http://localhost:8081/api/printer/all').then(
+      res => {
+        setAllPrinter(res.data);
+      }
+    ).catch(err => {
+      console.log(err);
+    });
+
+
+  }, []);
+
   return (
     <div className="left-menu">
       {/* Uncomment and update profile section if needed */}
@@ -275,15 +312,15 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ isMenuOpen }) => {
       <div className="stats">
         <div className="stat-item">
           <span>Số máy in: </span>
-          <span>6</span>
+          <span>{allPrinter.length}</span>
         </div>
         <div className="stat-item">
           <span>Số người dùng: </span>
-          <span>1200</span>
+          <span>120</span>
         </div>
         <div className="stat-item">
           <span>Số lệnh in: </span>
-          <span>2500</span>
+          <span>250</span>
         </div>
       </div>
     </div>

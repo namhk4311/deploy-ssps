@@ -28,17 +28,23 @@ const Login: React.FC<LoginProps> = ({roleSelected}) => {
       e.preventDefault();
       // setErrors(Validation(value));
       if (errors.email === "" && errors.password === "") {
-        axios.post('http://localhost:8081/api/user/login', value) 
-        .then(res => {
+        var newAxiosRequest;
+        if (roleSelected === 'student') {
+          newAxiosRequest = axios.post('http://localhost:8081/api/user/login/student', value) 
+        }
+        else if (roleSelected === 'admin') {
+          newAxiosRequest = axios.post('http://localhost:8081/api/user/login/spso', value); 
+        }
+        else {
+          console.log('Error?');
+          return;
+        }
+        newAxiosRequest.then(res => {
           console.log(res.data.Login);
           if (res.data.Login) {
             localStorage.setItem("token", res.data.token);
-            if (roleSelected === 'student') {
-              navigate('/student');
-            }
-            else if (roleSelected === 'admin') {
-              navigate('/spso');
-            }
+            if (roleSelected === 'student') navigate('/student');
+            else if (roleSelected === 'admin') navigate('/spso');
           }
           else {
             alert('Invalid email/password');

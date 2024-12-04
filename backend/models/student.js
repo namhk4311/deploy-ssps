@@ -1,9 +1,11 @@
 const db = require('../database/db');
-const { get } = require('../routes');
 
 async function getStudentByID(id) {
     try {
-        const sql = 'SELECT * FROM USER, STUDENT WHERE (USER.ID = STUDENT.ID) AND (USER.ID = ?)';
+        const sql = `
+            SELECT U.ID, U.Email, U.F_Name, U.M_Name, U.L_Name, U.LastLogin, U.Role, S.Available_Pages
+            FROM USER U, STUDENT S 
+            WHERE (U.ID = S.ID) AND (U.ID = ?);`;
         const [result] = await db.query(sql, [id]);
         return result;
     }
@@ -12,15 +14,15 @@ async function getStudentByID(id) {
     }
 }
 
-async function getStudentByEmail(email) {
+async function getStudentByEmail(email, password) {
     try {
         const sql = `
-            SELECT * 
-            FROM USER, STUDENT 
-            WHERE (USER.ID = STUDENT.ID) AND (USER.Email = ?)
+            SELECT U.ID, U.Email, U.F_Name, U.M_Name, U.L_Name, U.LastLogin, U.Role, S.Available_Pages
+            FROM USER U, STUDENT S 
+            WHERE (U.ID = S.ID) AND (U.Email = ?) AND (U.Password = ?);
         `;
-        const [result] = await db.query(sql, [email]);
-        return result[0];
+        const [result] = await db.query(sql, [email, password]);
+        return result;
     }
     catch (err) {
         throw err;
@@ -78,14 +80,6 @@ async function updateStudentBalance(id, num_pages) {
     }
 }
 
-module.exports = {
-    getStudentByID, 
-    getStudentByEmail,
-    getBalance,
-    updateLastLogin,
-    updateStudentBalance
-}
-
 
 
 // async function print() {
@@ -113,3 +107,11 @@ module.exports = {
 
 
 // console.log(result);
+
+module.exports = {
+    getStudentByID, 
+    getStudentByEmail,
+    getBalance,
+    updateLastLogin,
+    updateStudentBalance
+}
