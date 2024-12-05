@@ -10,6 +10,6 @@ router.use(express.json());
 // })
 
 router.get('/info/:id', userController.getStudentInfo);
-
+router.get('/balance/:id', userController.getStudentBalance);
 
 module.exports = router;

@@ -85,11 +85,23 @@ const verifyUser = (req, res, next) => {
     }
 }
 
+async function getStudentBalance(req, res, next) {
+    try {
+        const result = studentDAO.getBalance(req.params.id);
+        if (result) return res.json(result);
+        return res.json({Message: "Fetch student balance failed"});
+    }
+    catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     loginStudent,
     loginSPSO,
     getStudentInfo,
     getSPSOInfo,
     logoutUser,
-    verifyUser
+    verifyUser,
+    getStudentBalance
 }

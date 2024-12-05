@@ -4,12 +4,17 @@ import { useNavigate } from 'react-router-dom'
 import Validation from './LoginValidation';
 import './Login.css';
 
+interface IUSER {
+  ID: number, Available_Pages: number, Email: string, Password: string, F_name: string, M_name: string, L_name: string, Role: string, LastLogin: string
+}
+
 interface LoginProps {
   // onLogin: () => void;
     roleSelected: 'student' | 'admin' | null;
+    setUserInfo: React.Dispatch<React.SetStateAction<IUSER>>;
 }
 
-const Login: React.FC<LoginProps> = ({roleSelected}) => {
+const Login: React.FC<LoginProps> = ({roleSelected, setUserInfo}) => {
   const [value, setValue] = React.useState({
       email: '',
       password: '',
@@ -40,11 +45,18 @@ const Login: React.FC<LoginProps> = ({roleSelected}) => {
           return;
         }
         newAxiosRequest.then(res => {
-          console.log(res.data.Login);
           if (res.data.Login) {
             localStorage.setItem("token", res.data.token);
-            if (roleSelected === 'student') navigate('/student');
-            else if (roleSelected === 'admin') navigate('/spso');
+            localStorage.setItem("myid", JSON.stringify(res.data.result[0]));
+            setUserInfo(res.data.result[0]);
+ 
+            
+            if (roleSelected === 'student') {
+              navigate('/student');
+            }
+            else if (roleSelected === 'admin') {
+              navigate('/spso');
+            }
           }
           else {
             alert('Invalid email/password');

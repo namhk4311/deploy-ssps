@@ -7,9 +7,24 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'
 import {Link} from 'react-router-dom'
 
+interface IUSER {
+  ID: number, Available_Pages: number, Email: string, Password: string, F_name: string, M_name: string, L_name: string, Role: string, LastLogin: string
+}
+
+interface IDOCUMENT {
+  Name: string,
+  pages: number,
+  End_time: string,
+  time: string,
+  Format: string,
+  Number_of_pages: number
+}
 
 interface DashboardProps {
   //  onLogout: () => void;
+  studentInfo: IUSER;
+  fetchDocument: [IDOCUMENT];
+  setFetchDocument: React.Dispatch<React.SetStateAction<[IDOCUMENT]>>;
 }
 
 interface Printer {
@@ -30,6 +45,8 @@ interface CurrentPrintOrderProps {
 
 interface RecentPrintsProps {
   isMenuOpen: boolean;
+  fetchDocument: [IDOCUMENT];
+  setFetchDocument: React.Dispatch<React.SetStateAction<[IDOCUMENT]>>;
 }
 
 const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onToggleMenu, onLogout }) => {
@@ -86,13 +103,29 @@ const Footer: React.FC = () => {
   );
 };
 
-const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
-  const documents = [
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-  ];
+
+const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen, fetchDocument, setFetchDocument }) => {
+
+  const {ID} = JSON.parse(localStorage.getItem("myid") || '');
+  React.useEffect(() => {
+    axios.get(`http://localhost:8081/api/print/document/${ID}`).then(
+      res => {
+        if (res.data) setFetchDocument(res.data);
+      }
+    ).catch(err => {console.log(err)});
+  }, []);
+  
+  var documents = fetchDocument.map(document => {
+    return {name: `${document.Name}.${document.Format}`, pages: `${document.Number_of_pages}`, date: `10-10-2024`}
+  });
+  // [
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
+  // ];
+
+  
 
   return (
     <div className={`recent-prints ${!isMenuOpen ? "narrow" : ""}`}>
@@ -106,7 +139,7 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
             <img src="/placeholder.svg?height=24&width=24" alt="Document Icon" className="document-icon" />
             <div className="document-info">
               <span className="document-name">{doc.name}</span>
-              <span className="document-details">{doc.pages} trang • {doc.time} {doc.date}</span>
+              <span className="document-details">{doc.pages} trang • {doc.date}</span>
             </div>
           </li>
         ))}
@@ -165,12 +198,14 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: React.FC<DashboardProps> = ({studentInfo, fetchDocument, setFetchDocument}) => {
   const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>(
     'none'
   );
 
+
   const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
+
 
   const handleOpenPrintDialog = () => {
     setCurrentDialog('print');
@@ -221,8 +256,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
             }
         }).catch(err => console.log(err))
   };
-
-
+  const {Available_Pages} = JSON.parse(localStorage.getItem("myid") || '');
 
   return (
     <div className="dashboard">
@@ -236,7 +270,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
           <div className="stats">
             <div className="stat-item">
               <span>Số dư còn lại: </span>
-              <span>8848</span>
+              <span>{Available_Pages}</span>
             </div>
             <div className="stat-item">
               <span>Số lệnh in: </span>
@@ -254,7 +288,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
             <h1>Ho Chi Minh City University Of Technology</h1>
             <h2>Student Smart Printing Service</h2>
           </div>
-          <RecentPrints isMenuOpen={isMenuOpen} />
+          <RecentPrints isMenuOpen={isMenuOpen} fetchDocument={fetchDocument} setFetchDocument={setFetchDocument} />
         </div>
         <div className="right-menu">
           <CurrentPrintOrder onCreatePrintOrder={handleOpenPrintDialog} />

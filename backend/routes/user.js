@@ -16,7 +16,7 @@ router.use(express.json());
 
 
 
-router.get('/', userController.verifyUser, (req, res) => {
+router.get('/checkAuth', userController.verifyUser, (req, res) => {
     return res.json({Status: "Success", name: req.name})
 })
 
