@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 import "./SPSO.css";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import PrinterManagementDialog from "../SPSO_ManagePrinter/Manage_Printer";
+
+
 
 interface SPSOProps {
   onLogout: () => void;
+}
+
+interface ListOfPrinterProps {
+  onSelectPrinter: (printer: Printer) => void;
 }
 
 interface Printer {
@@ -16,7 +21,6 @@ interface Printer {
 interface HeaderProps {
   onOpenPrintDialog: () => void;
   onLogout: () => void;
-  onToggleMenu: () => void;
   onGoToHomePage: () => void; 
 }
 
@@ -24,29 +28,13 @@ interface CurrentPrintOrderProps {
   onCreatePrintOrder: () => void;
 }
 
-interface RecentPrintsProps {
-  isMenuOpen: boolean;
-}
-
-interface ListOfPrinterProps {
-  isMenuOpen: boolean;
-}
-
-interface LeftMenuProps {
-  isMenuOpen: boolean;
-}
-
 const Header: React.FC<HeaderProps> = ({
   onOpenPrintDialog,
   onLogout,
-  onToggleMenu,
   onGoToHomePage,
 }) => {
   return (
     <header className="header">
-      <div className="hamburger" onClick={onToggleMenu}>
-        ☰
-      </div>
 
       <nav className="nav">
         <a href="#" className="nav-link" onClick={onGoToHomePage}>
@@ -106,7 +94,7 @@ const Footer: React.FC = () => {
   );
 };
 
-const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
+const RecentPrints: React.FC = () => {
   const documents = [
     {
       name: "Document_A.docx",
@@ -136,7 +124,7 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
   ];
 
   return (
-    <div className={`recent-prints ${!isMenuOpen ? "narrow" : ""}`}>
+    <div className="recent-prints">
       <div className="recentheader">
         <h2>Máy in được sử dụng gần đây</h2>
         <a href="#">Xem tất cả</a>
@@ -162,52 +150,29 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen }) => {
   );
 };
 
-const ListOfPrinter: React.FC<ListOfPrinterProps> = ({ isMenuOpen }) => {
-
-  const [allPrinter, setAllPrinter] = React.useState([{PrID: null, Model: '', Floor: '', Campus: '', Short_description: '', Building: ''}]);
-  React.useEffect(() => {
-    // function getAllData() {
-    //   axios.get('http://localhost:8081/api/printer/all').
-    //   then(res => {
-    //     setAllPrinter(res.data);
-    //   });
-    // }
-    // getAllData();
-    axios.get('http://localhost:8081/api/printer/all').
-    then(res => {
-      setAllPrinter(res.data);
-    });
-  }, [])
-
-  console.log(allPrinter);
-
-  var printers; //= [
-  //   {
-  //     name: "Máy in A",
-  //     location: "Tầng 2 - Tòa B4",
-  //     features: ["1 mặt", "2 mặt", "In trắng đen", "A3"],
-  //   },
-  //   {
-  //     name: "Máy in B",
-  //     location: "Tầng 2 - Tòa B4",
-  //     features: ["1 mặt", "2 mặt", "In trắng đen", "A4"],
-  //   }
-  // ];
-
-  printers = allPrinter.slice(0, 6).map(
-      (printer) => ({name: printer.Model, location: `Phòng ${printer.Floor} - Toà ${printer.Building}`, features: [`${printer.Short_description}`]})
-  );
-
+const ListOfPrinter: React.FC<ListOfPrinterProps> = ({ onSelectPrinter }) => {  
+  const printers = [
+    {
+      name: "Máy in A",
+      location: "Tầng 2 - Tòa B4",
+      features: ["1 mặt", "2 mặt", "In trắng đen", "A3"],
+    },
+    {
+      name: "Máy in B",
+      location: "Tầng 2 - Tòa B4",
+      features: ["1 mặt", "2 mặt", "In trắng đen", "A4"],
+    }
+  ];
 
   return (
-    <div className={`list-of-printers ${!isMenuOpen ? "narrow" : ""}`}>
+    <div className="list-of-printers">
       <div className="listheader">
         <h2>Danh sách máy in</h2>
         <a href="#">Xem tất cả</a>
       </div>
       <ul>
         {printers.map((printer, index) => (
-          <li key={index} className="printers-item">
+          <li key={index} className="printers-item" onClick={() => onSelectPrinter(printer)}>
             <img
               src="/placeholder.svg?height=24&width=24"
               alt="Document Icon"
@@ -216,7 +181,7 @@ const ListOfPrinter: React.FC<ListOfPrinterProps> = ({ isMenuOpen }) => {
             <div className="printers-info">
               <span className="printers-name">{printer.name}</span>
               <span className="printers-details">
-                {printer.location} • {printer.features}
+                {printer.location} trang • {printer.features}
               </span>
             </div>
           </li>
@@ -285,26 +250,9 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const LeftMenu: React.FC<LeftMenuProps> = ({ isMenuOpen }) => {
-  if (!isMenuOpen) return null; // Return null if the menu is not open
-
-  const [allPrinter, setAllPrinter] = React.useState([]);
-
-  React.useEffect(() => {
-    axios.get('http://localhost:8081/api/printer/all').then(
-      res => {
-        setAllPrinter(res.data);
-      }
-    ).catch(err => {
-      console.log(err);
-    });
-
-
-  }, []);
-
+const LeftMenu: React.FC = () => {
   return (
     <div className="left-menu">
-      {/* Uncomment and update profile section if needed */}
       {/* <div className="profile">
           <img src="/placeholder.svg?height=24&width=24" alt="Profile" />
           <a href="#" className="logout" onClick={onLogout}>Đăng xuất</a>
@@ -312,30 +260,27 @@ const LeftMenu: React.FC<LeftMenuProps> = ({ isMenuOpen }) => {
       <div className="stats">
         <div className="stat-item">
           <span>Số máy in: </span>
-          <span>{allPrinter.length}</span>
+          <span>6</span>
         </div>
         <div className="stat-item">
           <span>Số người dùng: </span>
-          <span>120</span>
+          <span>1200</span>
         </div>
         <div className="stat-item">
           <span>Số lệnh in: </span>
-          <span>250</span>
+          <span>2500</span>
         </div>
       </div>
     </div>
   );
 };
 
-const SPSO: React.FC<SPSOProps> = () => {
+const SPSO: React.FC<SPSOProps> = ({ onLogout }) => {
   const [currentView, setCurrentView] = useState<
     "recentPrints" | "listOfPrinters"
   >("recentPrints");
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
 
   const handleOpenPrintDialog = () => {
     setCurrentView("listOfPrinters"); // Switch to the ListOfPrinter view
@@ -345,41 +290,35 @@ const SPSO: React.FC<SPSOProps> = () => {
     setCurrentView("recentPrints"); // Reset to the main page
   };
 
+  const handleSelectPrinter = (printer: Printer) => {
+    setSelectedPrinter(printer);
+    setIsDialogOpen(true);
+  };
 
-  const navigate = useNavigate();
-
-  /*logout handle function */
-  const handleLogout = () => {
-    axios.get('http://localhost:8081/api/user/logout')
-        .then(res => {
-            if (res.data.Status === "Success") {
-              navigate('/');
-            }
-            else {
-                alert("error");
-            }
-        }).catch(err => console.log(err))
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
   };
 
   return (
     <div className="SPSO">
       <Header
         onOpenPrintDialog={handleOpenPrintDialog}
-        onLogout={handleLogout}
-        onToggleMenu={toggleMenu}
+        onLogout={onLogout}
         onGoToHomePage={handleGoToHomePage}
       />
       <div className="main-content">
-        <LeftMenu isMenuOpen={isMenuOpen} />
+        <LeftMenu />
         <div className="content">
-          <div className={`welcome ${!isMenuOpen ? "narrow" : ""}`}>
+          <div className="welcome">
             <h1>Ho Chi Minh City University Of Technology</h1>
             <h2>Student Smart Printing Service</h2>
           </div>
           {currentView === "recentPrints" ? (
-            <RecentPrints isMenuOpen={isMenuOpen} />
+            <RecentPrints />
           ) : (
-            <ListOfPrinter isMenuOpen={isMenuOpen} />
+            <ListOfPrinter
+              onSelectPrinter={handleSelectPrinter}
+            />
           )}
         </div>
         <div className="right-menu">
@@ -388,6 +327,13 @@ const SPSO: React.FC<SPSOProps> = () => {
         </div>
       </div>
       <Footer />
+      {isDialogOpen && (
+        <PrinterManagementDialog
+          printer={selectedPrinter}
+          onClose={handleDialogClose}
+        />
+      )}
+
     </div>
   );
 };

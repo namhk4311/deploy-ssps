@@ -78,8 +78,8 @@ function App() {
           <BrowserRouter>
               <Routes>
                 <Route path='/' element={<Role onSelectRole={handleRoleSelection} />} />
-                <Route path='/student' element={<Dashboard studentInfo={userInfo} fetchDocument={fetchDocument} setFetchDocument={setFetchDocument}/>} />
-                <Route path='/login' element={<Login roleSelected={role} setUserInfo={setUserInfo} />} />
+                {/* <Route path='/student' element={<Dashboard studentInfo={userInfo} fetchDocument={fetchDocument} setFetchDocument={setFetchDocument}/>} /> */}
+                {/* <Route path='/login' element={<Login roleSelected={role} setUserInfo={setUserInfo} />} /> */}
                 <Route path='/spso' element={<SPSO onLogout={handleLogout} />} />
               </Routes>
             </BrowserRouter>

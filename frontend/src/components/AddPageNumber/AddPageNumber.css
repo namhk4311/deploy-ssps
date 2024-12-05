@@ -1,0 +1,72 @@
+.addpagenum-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.38);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .dialog-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    width: 624px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .text-container {
+    margin-bottom: 24px;
+  }
+  
+  .dialog-heading {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #1c2024;
+    margin-bottom: 8px;
+  }
+  
+  .page-number-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-top: 8px;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .cancel-button,
+  .submit-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+  }
+  
+  .cancel-button {
+    background-color: #f1f1f1;
+    color: #333;
+  }
+  
+  .submit-button {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .cancel-button:hover,
+  .submit-button:hover {
+    opacity: 0.8;
+  }
+  

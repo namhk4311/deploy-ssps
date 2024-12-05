@@ -17,7 +17,7 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
             Tải file lên để thực hiện in tại một trong các máy in có sẵn
           </p>
         </div>
-        <TabNavigation />
+        {/* <TabNavigation /> */}
         <FileUploadArea />
         <DialogActions onClose={onClose} onContinue={onContinue} />
       </div>
@@ -25,19 +25,19 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
   );
 };
 
-const TabNavigation: React.FC = () => {
-  return (
-    <div className="tab-navigation">
-      <button className="tab">Tải lên một tập tin</button>
-      <button className="tab">Các tập tin gần đây</button>
-      <button className="tab">Google Drive</button>
-    </div>
-  );
-};
+// const TabNavigation: React.FC = () => {
+//   return (
+//     <div className="tab-navigation">
+//       <button className="tab active">Tải lên một tập tin</button>
+//       <button className="tab">Các tập tin gần đây</button>
+//       <button className="tab">Google Drive</button>
+//     </div>
+//   );
+// };
 
 const FileUploadArea: React.FC = () => {
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null); // Track the uploaded file
-  const fileInputRef = useRef<HTMLInputElement | null>(null); // Ref to handle file input clicks
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null); 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +73,7 @@ const FileUploadArea: React.FC = () => {
         onChange={handleFileSelect}
       />
       <div className="upload-icon">
-        <img src="https://placeholder.pics/svg/54x54" alt="Upload" />
+        <img src="/image/upload.png" alt="Upload" />
       </div>
       {uploadedFile ? (
         <p className="upload-text">File uploaded: {uploadedFile.name}</p>

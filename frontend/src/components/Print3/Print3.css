@@ -1,194 +1,199 @@
 .print-confirmation-dialog {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.38);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .dialog-container {
-    position: relative;
-    background-color: #ffffff;
-    border-radius: 8px;
-    width: 624px;
-    padding: 24px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .text-container {
-    margin-bottom: 24px;
-  }
-  
-  .dialog-heading {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: #1c2024;
-    margin-bottom: 8px;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.38);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .dialog-close-button {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: #2a2c2d;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
+.dialog-container {
+  position: relative;
+  background-color: #ffffff;
+  border-radius: 8px;
+  width: 624px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.text-container {
+  margin-bottom: 24px;
+}
+
+.dialog-heading {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #1c2024;
+  margin-bottom: 8px;
+}
+
+.dialog-close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: #2a2c2d;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.dialog-description {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  color: #1c2024;
+}
+
+.dialog-description a {
+  color: #3e63dd;
+  text-decoration: none;
+}
+
+.printer-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 12px;
+  border: 1px solid #006eff;
+  border-radius: 8px;
+  background-color: #ffffffcc;
+}
+
+.printer-info {
+  display: flex;
+  align-items: center;
+}
+
+.printer-image {
+  width: 54px;
+  height: 54px;
+  margin-right: 16px;
+}
+
+.printer-details {
+  font-family: 'Roboto', sans-serif;
+}
+
+.printer-name {
+  font-weight: 500;
+  font-size: 20px;
+  color: #1c2024;
+  margin-bottom: 8px;
+}
+
+.printer-features {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.color-badge {
+  background-color: #f0004010;
+  color: #c10030;
+}
+
+.duplex-badge {
+  background-color: #01ccff1d;
+  color: #005681;
+}
+
+.printer-location {
+  font-size: 12px;
+  color: #0007139f;
+}
+
+.change-printer-link {
+  font-size: 12px;
+  color: #00259e;
+  text-decoration: none;
+}
+
+.print-options {
+  margin-bottom: 24px;
+}
+
+.option-group {
+  margin-bottom: 16px;
+}
+
+.option-label {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: #1c2024;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.option-select {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid #000000;
+  color: #1c2024;
+  border-radius: 4px;
+  background-color: #ffffffe5;
+}
+
+.radio-group {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-option {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #1c2024;
   
-  .dialog-description {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 400;
-    font-size: 12px;
-    color: #1c2024;
-  }
-  
-  .dialog-description a {
-    color: #3e63dd;
-    text-decoration: none;
-  }
-  
-  .printer-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding: 12px;
-    border: 1px solid #ff9500;
-    border-radius: 8px;
-    background-color: #ffffffcc;
-  }
-  
-  .printer-info {
-    display: flex;
-    align-items: center;
-  }
-  
-  .printer-image {
-    width: 54px;
-    height: 54px;
-    margin-right: 16px;
-  }
-  
-  .printer-details {
-    font-family: 'Roboto', sans-serif;
-  }
-  
-  .printer-name {
-    font-weight: 500;
-    font-size: 20px;
-    color: #1c2024;
-    margin-bottom: 8px;
-  }
-  
-  .printer-features {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-  
-  .badge {
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-weight: 500;
-  }
-  
-  .color-badge {
-    background-color: #f0004010;
-    color: #c10030;
-  }
-  
-  .duplex-badge {
-    background-color: #01ccff1d;
-    color: #005681;
-  }
-  
-  .printer-location {
-    font-size: 12px;
-    color: #0007139f;
-  }
-  
-  .change-printer-link {
-    font-size: 12px;
-    color: #00259e;
-    text-decoration: none;
-  }
-  
-  .print-options {
-    margin-bottom: 24px;
-  }
-  
-  .option-group {
-    margin-bottom: 16px;
-  }
-  
-  .option-label {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    font-size: 12px;
-    color: #1c2024;
-    margin-bottom: 4px;
-    display: block;
-  }
-  
-  .option-select {
-    width: 100%;
-    padding: 4px;
-    border: 1px solid #ff9500;
-    border-radius: 4px;
-    background-color: #ffffffe5;
-  }
-  
-  .radio-group {
-    display: flex;
-    gap: 16px;
-  }
-  
-  .radio-option {
-    font-family: 'Roboto', sans-serif;
-    font-size: 12px;
-    color: #1c2024;
-  }
-  
-  .page-count {
-    font-family: 'Roboto', sans-serif;
-    font-size: 12px;
-    color: #1c2024;
-  }
-  
-  .dialog-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-  }
-  
-  .cancel-button,
-  .confirm-button {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    font-size: 12px;
-    padding: 8px 16px;
-    border-radius: 3px;
-    cursor: pointer;
-    border: none;
-  }
-  
-  .cancel-button {
-    background-color: #f0f0f0;
-    color: #60646c;
-  }
-  
-  .confirm-button {
-    background-color: #3e63dd;
-    color: #ffffff;
-  }
-  
+}
+
+.page-count {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  color: #1c2024;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cancel-button:hover {
+  background-color: inherit;
+  color: inherit;
+}
+
+.confirm-button {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: none;
+}
+
+.cancel-button {
+  background-color: #f0f0f0;
+  color: #60646c;
+}
+
+.confirm-button {
+  background-color: #3e63dd;
+  color: #ffffff;
+}

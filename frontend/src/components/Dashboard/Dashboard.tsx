@@ -3,28 +3,9 @@ import './Dashboard.css';
 import PrintDialog from '../Print/Print';
 import PrinterSelectionDialog from '../Print2/Print2';
 import PrintConfirmationDialog from '../Print3/Print3';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom'
-import {Link} from 'react-router-dom'
-
-interface IUSER {
-  ID: number, Available_Pages: number, Email: string, Password: string, F_name: string, M_name: string, L_name: string, Role: string, LastLogin: string
-}
-
-interface IDOCUMENT {
-  Name: string,
-  pages: number,
-  End_time: string,
-  time: string,
-  Format: string,
-  Number_of_pages: number
-}
 
 interface DashboardProps {
-  //  onLogout: () => void;
-  studentInfo: IUSER;
-  fetchDocument: [IDOCUMENT];
-  setFetchDocument: React.Dispatch<React.SetStateAction<[IDOCUMENT]>>;
+  onLogout: () => void;
 }
 
 interface Printer {
@@ -36,42 +17,39 @@ interface Printer {
 interface HeaderProps {
   onOpenPrintDialog: () => void;
   onLogout: () => void;
-  onToggleMenu: () => void;
 }
 
 interface CurrentPrintOrderProps {
   onCreatePrintOrder: () => void;
+  isPrinting: boolean;          
+  loadingProgress: number;    
+  totalPages: number;
 }
 
-interface RecentPrintsProps {
-  isMenuOpen: boolean;
-  fetchDocument: [IDOCUMENT];
-  setFetchDocument: React.Dispatch<React.SetStateAction<[IDOCUMENT]>>;
-}
 
-const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onToggleMenu, onLogout }) => {
+const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onLogout }) => {
   return (
     <header className="header">
-      <div className="hamburger" onClick={onToggleMenu}>
-        ☰
-      </div>
 
       <nav className="nav">
         <a href="#" className="nav-link active">Trang chủ</a>
         <a href="#" className="nav-link" onClick={onOpenPrintDialog}>In tài liệu</a>
         <a href="#" className="nav-link">Thêm số trang</a>
-        <a href="#" className="nav-link">Hỗ trợ</a>
+        <a href="#" className="nav-link" onClick={(e) => {
+          e.preventDefault();
+          const footer = document.getElementById('footer');
+          if (footer) {
+            footer.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
+        >Hỗ trợ</a>
       </nav>
       <div className="profile">
             <img src="/image/user.png" alt="Profile" />
             <a href="#" className="logout" onClick={(e) => {
-                e.preventDefault();
-                onLogout();
-              }
-            }>
-                Đăng xuất
-            </a>
-            {/* <Link to="/login" className='logout'>Đăng xuất</Link> */}
+            e.preventDefault();
+            onLogout();}}>
+            Đăng xuất</a>
       </div>
       
     </header>
@@ -80,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onToggleMenu, onLogo
 
 const Footer: React.FC = () => {
   return (
-    <footer className="footer">
+    <footer className="footer" id="footer">
       <div className="footer-content">
         <div className="footer-logo">
           <img src="/image/bk.png" alt="Logo" width="80" height="80" />
@@ -103,32 +81,17 @@ const Footer: React.FC = () => {
   );
 };
 
-
-const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen, fetchDocument, setFetchDocument }) => {
-
-  const {ID} = JSON.parse(localStorage.getItem("myid") || '');
-  React.useEffect(() => {
-    axios.get(`http://localhost:8081/api/print/document/${ID}`).then(
-      res => {
-        if (res.data) setFetchDocument(res.data);
-      }
-    ).catch(err => {console.log(err)});
-  }, []);
-  
-  var documents = fetchDocument.map(document => {
-    return {name: `${document.Name}.${document.Format}`, pages: `${document.Number_of_pages}`, date: `10-10-2024`}
-  });
-  // [
-  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
-  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
-  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
-  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2024' },
-  // ];
-
-  
+const RecentPrints: React.FC = () => {
+  const documents = [
+    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+  ];
 
   return (
-    <div className={`recent-prints ${!isMenuOpen ? "narrow" : ""}`}>
+    // <div className={`recent-prints ${!isMenuOpen ? "narrow" : ""}`}>
+    <div className="recent-prints">
       <div className="recentheader">
         <h2>Đã in gần đây</h2>
         <a href="#">Xem tất cả</a>
@@ -139,7 +102,7 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen, fetchDocument, 
             <img src="/placeholder.svg?height=24&width=24" alt="Document Icon" className="document-icon" />
             <div className="document-info">
               <span className="document-name">{doc.name}</span>
-              <span className="document-details">{doc.pages} trang • {doc.date}</span>
+              <span className="document-details">{doc.pages} trang • {doc.time} {doc.date}</span>
             </div>
           </li>
         ))}
@@ -148,22 +111,34 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({ isMenuOpen, fetchDocument, 
   );
 };
 
-const CurrentPrintOrder: React.FC<CurrentPrintOrderProps> = ({ onCreatePrintOrder }) => {
+const CurrentPrintOrder: React.FC<CurrentPrintOrderProps> = ({ onCreatePrintOrder, isPrinting, loadingProgress, totalPages }) => {
   return (
     <div className="current-print-order">
       <h2>Lệnh in hiện tại</h2>
       <div className="print-order-status">
-        <p>Không có gì đang được in</p>
-        <a href="#" onClick={(e) => {
-          e.preventDefault();
-          onCreatePrintOrder();
-        }}>
-          Tạo lệnh in
-        </a>
+        {isPrinting ? (
+          <>
+            <p>Đang in <strong>{totalPages}</strong> trang...</p>
+            <div className="loading-bar">
+              <div className="progress" style={{ width: `${loadingProgress}%` }}></div>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>Không có gì đang được in</p>
+            <a href="#" onClick={(e) => {
+              e.preventDefault();
+              onCreatePrintOrder();
+            }}>
+              Tạo lệnh in
+            </a>
+          </>
+        )}
       </div>
     </div>
   );
 };
+
 
 const Calendar: React.FC = () => {
   return (
@@ -198,14 +173,12 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const Dashboard: React.FC<DashboardProps> = ({studentInfo, fetchDocument, setFetchDocument}) => {
-  const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>(
-    'none'
-  );
-
-
+const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+  const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>('none');
   const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
-
+  const [totalPages, setTotalPages] = useState<number>(0); // Manage total pages state
+  const [isPrinting, setIsPrinting] = useState<boolean>(false);
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
   const handleOpenPrintDialog = () => {
     setCurrentDialog('print');
@@ -236,41 +209,42 @@ const Dashboard: React.FC<DashboardProps> = ({studentInfo, fetchDocument, setFet
     setCurrentDialog('printer-selection');
   };
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Function to start the printing process
+  const handleStartPrinting = (pages: number) => {
+    if (pages === 0) {
+      alert('Không có trang nào để in!');
+      return;
+    }
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    setIsPrinting(true);
+    setLoadingProgress(0);
+    setTotalPages(pages);
+    
+    // Simulate printing progress for each page (1 second per page)
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 100 / pages;
+      setLoadingProgress(progress);
+
+      if (progress >= 100) {
+        clearInterval(interval);
+        setIsPrinting(false);
+        alert("In thành công!");
+
+        setTotalPages(0);
+      }
+    }, 1000); // Update progress every second (1 second per page)
   };
-
-  /*logout handle function */
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    axios.get('http://localhost:8081/api/user/logout')
-        .then(res => {
-            if (res.data.Status === "Success") {
-              navigate('/');
-            }
-            else {
-                alert("error");
-            }
-        }).catch(err => console.log(err))
-  };
-  const {Available_Pages} = JSON.parse(localStorage.getItem("myid") || '');
 
   return (
     <div className="dashboard">
-      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={handleLogout} onToggleMenu={toggleMenu} />
+      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={onLogout} />
       <div className="main-content">
         <div className="left-menu">
-          <div className="profile">
-            {/* <img src="image/user.png" alt="Profile" /> */}
-            {/* <a href="#" className="logout" onClick={onLogout}>Đăng xuất</a> */}
-          </div>
           <div className="stats">
             <div className="stat-item">
               <span>Số dư còn lại: </span>
-              <span>{Available_Pages}</span>
+              <span>8848</span>
             </div>
             <div className="stat-item">
               <span>Số lệnh in: </span>
@@ -282,20 +256,29 @@ const Dashboard: React.FC<DashboardProps> = ({studentInfo, fetchDocument, setFet
             </div>
           </div>
         </div>
-      
+
         <div className="content">
-        <div className={`welcome ${!isMenuOpen ? "narrow" : ""}`}>
+          <div className="welcome">
             <h1>Ho Chi Minh City University Of Technology</h1>
             <h2>Student Smart Printing Service</h2>
           </div>
-          <RecentPrints isMenuOpen={isMenuOpen} fetchDocument={fetchDocument} setFetchDocument={setFetchDocument} />
+          <RecentPrints />
         </div>
+
+        {/* RIGHT MENU */}
         <div className="right-menu">
-          <CurrentPrintOrder onCreatePrintOrder={handleOpenPrintDialog} />
+          <CurrentPrintOrder 
+            onCreatePrintOrder={handleOpenPrintDialog} 
+            isPrinting={isPrinting} 
+            loadingProgress={loadingProgress} 
+            totalPages={totalPages} // Pass totalPages to CurrentPrintOrder
+          />
           <Calendar />
         </div>
       </div>
+
       <Footer />
+
       {currentDialog === 'print' && (
         <PrintDialog onClose={handleCloseDialog} onContinue={handleContinueToPrinterSelection} />
       )}
@@ -310,9 +293,11 @@ const Dashboard: React.FC<DashboardProps> = ({studentInfo, fetchDocument, setFet
       {currentDialog === 'print-confirmation' && (
         <PrintConfirmationDialog
           selectedPrinter={selectedPrinter}
+          totalPages={totalPages} 
           onBack={handleBackToPrinterSelection}
           onClose={handleCloseDialog}
           onChangePrinter={handleBackToPrinterSelection}
+          onStartPrinting={handleStartPrinting}
         />
       )}
     </div>
