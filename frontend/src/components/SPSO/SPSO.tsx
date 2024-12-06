@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import "./SPSO.css";
 import PrinterManagementDialog from "../SPSO_ManagePrinter/Manage_Printer";
-
-
+import axios, { all } from 'axios';
+import { useNavigate } from "react-router-dom";
 
 interface SPSOProps {
-  onLogout: () => void;
+  // onLogout: () => void;
 }
 
 interface ListOfPrinterProps {
@@ -95,25 +95,40 @@ const Footer: React.FC = () => {
 };
 
 const RecentPrints: React.FC = () => {
-  const documents = [
-    {
-      name: "Document_A.docx",
-      pages: 12,
-      time: "15:00 PM",
-      date: "22/10/2023",
-    },
-    {
-      name: "Document_A.docx",
-      pages: 12,
-      time: "15:00 PM",
-      date: "22/10/2023",
-    },
-    {
-      name: "Document_A.docx",
-      pages: 12,
-      time: "15:00 PM",
-      date: "22/10/2023",
-    },
+
+  const [allDocument, setAllDocument] = React.useState([{DocumentID: null, Name: null, Format: null, Number_of_pages: null, End_time: null}])
+
+  React.useEffect(() => {
+    axios.get('http://localhost:8081/api/print/all').
+    then(res => {
+      setAllDocument(res.data);
+    });
+  }, []);
+
+  const documents = allDocument.map(document => {
+    const pages = (document.Number_of_pages && document.Number_of_pages > 30) ? 30 : document.Number_of_pages;
+    return {name: document.Name, pages: pages, time: '', date: document.End_time}
+  }).reverse();
+
+  // const documents = [
+  //   {
+  //     name: "Document_A.docx",
+  //     pages: 12,
+  //     time: "15:00 PM",
+  //     date: "22/10/2023",
+  //   },
+  //   {
+  //     name: "Document_A.docx",
+  //     pages: 12,
+  //     time: "15:00 PM",
+  //     date: "22/10/2023",
+  //   },
+  //   {
+  //     name: "Document_A.docx",
+  //     pages: 12,
+  //     time: "15:00 PM",
+  //     date: "22/10/2023",
+  //   },
     // {
     //   name: "Document_A.docx",
     //   pages: 12,
@@ -121,12 +136,12 @@ const RecentPrints: React.FC = () => {
     //   date: "22/10/2023",
     // },
     
-  ];
+// ];
 
   return (
     <div className="recent-prints">
       <div className="recentheader">
-        <h2>Máy in được sử dụng gần đây</h2>
+        <h2>Các tài liệu được in gần đây</h2>
         <a href="#">Xem tất cả</a>
       </div>
       <ul>
@@ -151,18 +166,31 @@ const RecentPrints: React.FC = () => {
 };
 
 const ListOfPrinter: React.FC<ListOfPrinterProps> = ({ onSelectPrinter }) => {  
-  const printers = [
-    {
-      name: "Máy in A",
-      location: "Tầng 2 - Tòa B4",
-      features: ["1 mặt", "2 mặt", "In trắng đen", "A3"],
-    },
-    {
-      name: "Máy in B",
-      location: "Tầng 2 - Tòa B4",
-      features: ["1 mặt", "2 mặt", "In trắng đen", "A4"],
-    }
-  ];
+
+  const [allPrinter, setAllPrinter] = React.useState([{PrID: null, Model: '', Floor: '', Campus: '', Short_description: '', Building: ''}]);
+  React.useEffect(() => {
+    axios.get('http://localhost:8081/api/printer/all').
+    then(res => {
+      setAllPrinter(res.data);
+    });
+  }, []);
+
+  const printers = allPrinter.map(
+    (printer, index) => ({name: printer.Model, features: (index % 2 ? ['In màu ', '1 mặt'] : ['In màu ', '2 mặt']), location: `Tầng ${printer.Floor} • Toà ${printer.Building}`})
+  );
+
+  // const printers = [
+  //   {
+  //     name: "Máy in A",
+  //     location: "Tầng 2 - Tòa B4",
+  //     features: ["1 mặt", "2 mặt", "In trắng đen", "A3"],
+  //   },
+  //   {
+  //     name: "Máy in B",
+  //     location: "Tầng 2 - Tòa B4",
+  //     features: ["1 mặt", "2 mặt", "In trắng đen", "A4"],
+  //   }
+  // ];
 
   return (
     <div className="list-of-printers">
@@ -251,6 +279,15 @@ const getDayClass = (day: number): string => {
 };
 
 const LeftMenu: React.FC = () => {
+
+  const [allPrinter, setAllPrinter] = React.useState([{PrID: null, Model: '', Floor: '', Campus: '', Short_description: '', Building: ''}]);
+  React.useEffect(() => {
+    axios.get('http://localhost:8081/api/printer/all').
+    then(res => {
+      setAllPrinter(res.data);
+    });
+  }, []);  
+
   return (
     <div className="left-menu">
       {/* <div className="profile">
@@ -260,11 +297,11 @@ const LeftMenu: React.FC = () => {
       <div className="stats">
         <div className="stat-item">
           <span>Số máy in: </span>
-          <span>6</span>
+          <span>{allPrinter.length}</span>
         </div>
         <div className="stat-item">
           <span>Số người dùng: </span>
-          <span>1200</span>
+          <span>120</span>
         </div>
         <div className="stat-item">
           <span>Số lệnh in: </span>
@@ -275,7 +312,7 @@ const LeftMenu: React.FC = () => {
   );
 };
 
-const SPSO: React.FC<SPSOProps> = ({ onLogout }) => {
+const SPSO: React.FC<SPSOProps> = () => {
   const [currentView, setCurrentView] = useState<
     "recentPrints" | "listOfPrinters"
   >("recentPrints");
@@ -298,12 +335,26 @@ const SPSO: React.FC<SPSOProps> = ({ onLogout }) => {
   const handleDialogClose = () => {
     setIsDialogOpen(false);
   };
+  /*logout handle function */
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    axios.get('http://localhost:8081/api/user/logout')
+        .then(res => {
+            if (res.data.Status === "Success") {
+              navigate('/');
+            }
+            else {
+                alert("error logout");
+            }
+    }).catch(err => console.log(err))
+  };
 
   return (
     <div className="SPSO">
       <Header
         onOpenPrintDialog={handleOpenPrintDialog}
-        onLogout={onLogout}
+        onLogout={handleLogout}
         onGoToHomePage={handleGoToHomePage}
       />
       <div className="main-content">

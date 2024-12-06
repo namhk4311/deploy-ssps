@@ -1,7 +1,7 @@
+DROP DATABASE IF EXISTS ssps_database;
+
 -- Create the database
 CREATE DATABASE IF NOT EXISTS ssps_database;
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_unicode_ci;
 USE ssps_database;
 
 
@@ -30,7 +30,7 @@ CREATE TABLE SPSO (
 -- STUDENT table
 CREATE TABLE STUDENT (
     ID INT PRIMARY KEY,
-    Available_Pages INT NOT NULL DEFAULT 0,
+    Available_Pages INT NOT NULL DEFAULT 50,
     FOREIGN KEY (ID) REFERENCES USER(ID) ON DELETE CASCADE,
     CHECK (Available_Pages >= 0)
 );
@@ -94,7 +94,7 @@ FOR EACH ROW
 BEGIN
 	IF NEW.Role = 'student' THEN
 		INSERT INTO STUDENT (ID, Available_Pages)
-        VALUES (NEW.ID, 0);
+        VALUES (NEW.ID, 50);
 	ELSEIF NEW.Role = 'spso' THEN
 		INSERT INTO SPSO (ID)
         VALUES (NEW.ID);

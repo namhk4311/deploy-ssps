@@ -3,9 +3,11 @@ import './Dashboard.css';
 import PrintDialog from '../Print/Print';
 import PrinterSelectionDialog from '../Print2/Print2';
 import PrintConfirmationDialog from '../Print3/Print3';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'
 
 interface DashboardProps {
-  onLogout: () => void;
+  // onLogout: () => void;
 }
 
 interface Printer {
@@ -46,9 +48,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onLogout }) => {
       </nav>
       <div className="profile">
             <img src="/image/user.png" alt="Profile" />
-            <a href="#" className="logout" onClick={(e) => {
-            e.preventDefault();
-            onLogout();}}>
+            <a href="#" className="logout" onClick={(e) => 
+            {
+              e.preventDefault();
+              onLogout();
+            }}>
             Đăng xuất</a>
       </div>
       
@@ -81,13 +85,37 @@ const Footer: React.FC = () => {
   );
 };
 
+interface IDOCUMENT {
+  Name: string,
+  pages: number,
+  End_time: string,
+  time: string,
+  Format: string,
+  Number_of_pages: number
+}
+
+
 const RecentPrints: React.FC = () => {
-  const documents = [
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-    { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
-  ];
+  const [fetchDocument, setFetchDocument] = useState<[IDOCUMENT]>([{Name: '', pages: 0, End_time: '', time: '', Format: '', Number_of_pages: 0}]);
+
+  const {ID} = JSON.parse(localStorage.getItem("myid") || '');
+
+  React.useEffect(() => {
+    axios.get(`http://localhost:8081/api/print/document/${ID}`).then(
+      res => {
+        if (res.data) setFetchDocument(res.data);
+      }
+    ).catch(err => {console.log(err)});
+  }, []);
+  const documents = fetchDocument.map(document => {
+    return {name: `${document.Name}.${document.Format}`, pages: `${document.Number_of_pages}`, date: `10-10-2024`}
+  });
+  // [
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+  //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
+  // ];
 
   return (
     // <div className={`recent-prints ${!isMenuOpen ? "narrow" : ""}`}>
@@ -102,7 +130,7 @@ const RecentPrints: React.FC = () => {
             <img src="/placeholder.svg?height=24&width=24" alt="Document Icon" className="document-icon" />
             <div className="document-info">
               <span className="document-name">{doc.name}</span>
-              <span className="document-details">{doc.pages} trang • {doc.time} {doc.date}</span>
+              <span className="document-details">{doc.pages} trang • {doc.date}</span>
             </div>
           </li>
         ))}
@@ -173,12 +201,29 @@ const getDayClass = (day: number): string => {
   }
 };
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+const Dashboard: React.FC<DashboardProps> = () => {
   const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>('none');
   const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0); // Manage total pages state
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
+
+  /*logout handle function */
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    axios.get('http://localhost:8081/api/user/logout')
+        .then(res => {
+            if (res.data.Status === "Success") {
+              navigate('/');
+            }
+            else {
+                alert("error");
+            }
+    }).catch(err => console.log(err))
+  };
+  const {Available_Pages} = JSON.parse(localStorage.getItem("myid") || '');
+  
 
   const handleOpenPrintDialog = () => {
     setCurrentDialog('print');
@@ -238,13 +283,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   return (
     <div className="dashboard">
-      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={onLogout} />
+      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={handleLogout} />
       <div className="main-content">
         <div className="left-menu">
           <div className="stats">
             <div className="stat-item">
               <span>Số dư còn lại: </span>
-              <span>8848</span>
+              <span>{Available_Pages}</span>
             </div>
             <div className="stat-item">
               <span>Số lệnh in: </span>
