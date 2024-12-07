@@ -11,5 +11,6 @@ router.use(express.json());
 
 router.get('/info/:id', userController.getStudentInfo);
 router.get('/balance/:id', userController.getStudentBalance);
+router.post('/updateBalance', userController.updateBalance);
 
 module.exports = router;

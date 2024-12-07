@@ -51,7 +51,8 @@ async function getBalance(id) {
             WHERE ID = ?
         `;
         const [result] = await db.query(sql, [id]);
-        return result[0].Available_Pages;
+        console.log(result[0]);
+        return result[0];
     }
     catch (err) {
         throw err;
@@ -60,10 +61,10 @@ async function getBalance(id) {
 
 async function updateStudentBalance(id, num_pages) {
     try {
+        console.log(id, num_pages);
         const getCurrentBalance = await getBalance(id);
-        const updateBalance = getCurrentBalance + num_pages;
+        const updateBalance = getCurrentBalance.Available_Pages + num_pages;
         if (updateBalance <= 0) {
-            console.log(updateBalance);
             return null;
         }
         const sql = `
@@ -71,7 +72,7 @@ async function updateStudentBalance(id, num_pages) {
             SET Available_Pages = ?
             WHERE ID = ?
         `;
-        const result = await db.query(sql, [updateBalance, id]);
+        const [result] = await db.query(sql, [updateBalance, id]);
         return result;
     }
     catch (err) {

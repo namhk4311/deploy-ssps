@@ -8,4 +8,6 @@ router.get('/document/:id', printingController.getDocumentByStudentID);
 
 router.get('/all', printingController.retrieveAllDocumentOrder);
 
+router.post('/addOrder', printingController.AddingPrintingOrder);
+
 module.exports = router;

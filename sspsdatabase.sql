@@ -35,13 +35,7 @@ CREATE TABLE STUDENT (
     CHECK (Available_Pages >= 0)
 );
 
--- DOCUMENT table
-CREATE TABLE DOCUMENT (
-    DocumentID INT AUTO_INCREMENT PRIMARY KEY,
-    Name VARCHAR(255) NOT NULL,
-    Format VARCHAR(50) NOT NULL,
-    Number_of_pages INT NOT NULL
-);
+
 
 -- PRINTER table
 CREATE TABLE PRINTER (
@@ -52,9 +46,17 @@ CREATE TABLE PRINTER (
     Floor VARCHAR(50) NOT NULL,
     Model VARCHAR(100) NOT NULL,
     Short_description TEXT,
-    Brand VARCHAR(50) NOT NULL,
-    DocumentID INT,
-    FOREIGN KEY (DocumentID) REFERENCES DOCUMENT(DocumentID) ON DELETE SET NULL
+    Brand VARCHAR(50) NOT NULL
+);
+
+-- DOCUMENT table
+CREATE TABLE DOCUMENT (
+    DocumentID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Format VARCHAR(50) NOT NULL,
+    Number_of_pages INT NOT NULL,
+    PrID INT DEFAULT NULL,
+    FOREIGN KEY (PrID) REFERENCES PRINTER(PrID) ON DELETE SET NULL
 );
 
 -- PURCHASE_ORDER table
@@ -74,11 +76,11 @@ CREATE TABLE PRINT_ORDER (
     Start_time DATETIME NOT NULL,
     End_time DATETIME,
     Cancel_time DATETIME,
-    Number_of_copies INT NOT NULL,
-    Printing_color VARCHAR(20) NOT NULL,
+    Number_of_copies INT,
+    Printing_color VARCHAR(20),
     Page_side ENUM('One-sided', 'Double-sided') NOT NULL DEFAULT 'One-sided',
-    Type_of_page VARCHAR(50) NOT NULL,
-    Size_of_page VARCHAR(50) NOT NULL,
+    Type_of_page VARCHAR(50),
+    Size_of_page VARCHAR(50),
     studentID INT NOT NULL,
     DocumentID INT NOT NULL,
     FOREIGN KEY (studentID) REFERENCES STUDENT(ID),
@@ -94,7 +96,7 @@ FOR EACH ROW
 BEGIN
 	IF NEW.Role = 'student' THEN
 		INSERT INTO STUDENT (ID, Available_Pages)
-        VALUES (NEW.ID, 50);
+        VALUES (NEW.ID, 100);
 	ELSEIF NEW.Role = 'spso' THEN
 		INSERT INTO SPSO (ID)
         VALUES (NEW.ID);
@@ -104,12 +106,15 @@ END$$
 DELIMITER ;
 
 
+
+
 INSERT INTO USER (ID, Email, Password, F_Name, M_Name, L_Name, Role) 
 VALUES 
 (2252500, 'nam.hokhanhcs22@hcmut.edu.vn', '123456789', 'Nam', 'Khánh', 'Hồ', 'student'),
 (2252225, 'hoa.hasagi@hcmut.edu.vn', '123456789', 'Hoa', 'Kiến', 'Hà', 'student'),
 (2152933, 'quyen.ha38@hcmut.edu.vn', '123456789', 'Quyền', 'Chí', 'Hà', 'student'),
-(2252508, 'nga.huynh@hcmut.edu.vn', '123456789', 'Nga', null, 'Huỳnh', 'student');
+(2252508, 'nga.huynh@hcmut.edu.vn', '123456789', 'Nga', null, 'Huỳnh', 'student'),
+(2252093, 'chinh.hoang@hcmut.edu.vn', '123456789', 'Chính', 'Đức', 'Hoàng', 'student');
 
 INSERT INTO USER (ID, Email, Password, F_Name, Role)
 VALUES 
@@ -117,26 +122,26 @@ VALUES
 (2, 'admin2@hcmut.edu.vn', '123456789', 'admin2', 'spso'),
 (3, 'admin3@hcmut.edu.vn', '123456789', 'admin3', 'spso');
 
-INSERT INTO PRINTER (Campus, Building, Floor, Model, Short_description, Brand, DocumentID)
+INSERT INTO PRINTER (Campus, Building, Floor, Model, Short_description, Brand)
 VALUES
-('1', 'B1', '1', 'Epson L3250', 'In màu; 2 mặt; In A4, A5, A6', 'Epson', null),
-('1', 'B4', '4', 'CANON LBP 6030', 'In thuờng; 2 mặt; In A4, A5', 'CANON', null),
-('2', 'H6', '3', 'BROTHER MFC-L2701DW', 'In màu; 2 mặt; In A4, A5, A6', 'BROTHER', null),
-('1', 'A4', '3', 'HP Laser MFP 139FNW', 'In màu; 2 mặt; In A4, A5, A6', 'HP', null),
-('2', 'H3', '2', 'CANON LBP 6030', 'In thuờng; 2 mặt; In A4, A5', 'CANON', null),
-('2', 'H1', '4', 'CANON PIXMA GM2070', 'In màu; 2 mặt; In A4, A5', 'CANON', null);
+('1', 'B1', '1', 'Epson L3250', 'In màu; 2 mặt; In A4, A5, A6', 'Epson'),
+('1', 'B4', '4', 'CANON LBP 6030', 'In thuờng; 2 mặt; In A4, A5', 'CANON'),
+('2', 'H6', '3', 'BROTHER MFC-L2701DW', 'In màu; 2 mặt; In A4, A5, A6', 'BROTHER'),
+('1', 'A4', '3', 'HP Laser MFP 139FNW', 'In màu; 2 mặt; In A4, A5, A6', 'HP'),
+('2', 'H3', '2', 'CANON LBP 6030', 'In thuờng; 2 mặt; In A4, A5', 'CANON'),
+('2', 'H1', '4', 'CANON PIXMA GM2070', 'In màu; 2 mặt; In A4, A5', 'CANON');
 
-INSERT INTO DOCUMENT (Name, Format, Number_of_pages) 
+INSERT INTO DOCUMENT (Name, Format, Number_of_pages, PrID) 
 VALUES 
-('James-Stewart-Calculus-Thomson-Brooks_Cole-2008', 'pdf', 1308),
-('Rosen, Kenneth H - Discrete Mathematics and Its Applications-McGraw-Hill', 'pdf', 1118),
-('C++ Programming Teaching Plan', 'pdf', 10),
-('Tutorial_python', 'pdf', 155),
-('Capstone_Project_Autumn_2023', 'pdf', 5),
-('Lab_1a_Network Devices', 'doc', 8),
-('06_Ch6 System Modeling', 'pdf', 58),
-('Chapter 1_Atomic Structure', 'pptx', 70),
-('Chapter 2_Chemical Elements and Periodic Table', 'pptx', 41);
+('James-Stewart-Calculus-Thomson-Brooks_Cole-2008', 'pdf', 18, 1),
+('Rosen, Kenneth H - Discrete Mathematics and Its Applications-McGraw-Hill', 'pdf', 28, 1),
+('C++ Programming Teaching Plan', 'pdf', 10, 3),
+('Tutorial_python', 'pdf', 30, 2),
+('Capstone_Project_Autumn_2023', 'pdf', 5, 4),
+('Lab_1a_Network Devices', 'doc', 8, 6),
+('06_Ch6 System Modeling', 'pdf', 18, 5),
+('Chapter 1_Atomic Structure', 'pptx', 70, 2),
+('Chapter 2_Chemical Elements and Periodic Table', 'pptx', 11, 2);
 
 INSERT INTO PRINT_ORDER (
     Start_time, End_time, Cancel_time, Number_of_copies, 
@@ -171,7 +176,15 @@ VALUES
 ('2024-12-05 11:00:00', '2024-12-05 11:20:00', NULL, 5, 
  'Color', 'One-sided', 'A5', 'Booklet', 
  2252508, 4),
-('2024-12-05 14:00:00', NULL, '2024-12-05 14:10:00', 10, 
+('2024-12-05 14:00:00', '2024-12-05 14:10:00', NULL, 10, 
  'Black and White', 'Double-sided', 'A4', 'Letter', 
- 2252500, 5);
-
+ 2252500, 5),
+ ('2024-12-02 12:10:00','2024-12-02 12:13:00', NULL, 3, 
+ 'Color', 'One-sided', 'A5', 'Booklet', 
+ 2252093, 6),
+ ('2024-12-01 11:10:00', '2024-12-01 11:12:00', NULL, 1, 
+ 'Color', 'Double-sided', 'A4', 'Letter', 
+ 2252508, 7),
+ ('2024-11-30 08:10:00', '2024-11-30 08:12:00', NULL, 1, 
+ 'Black and White', 'Double-sided', 'A4', 'Letter', 
+ 2252508, 8);

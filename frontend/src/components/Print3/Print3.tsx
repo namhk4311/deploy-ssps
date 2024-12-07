@@ -1,11 +1,32 @@
 import React, { useState } from 'react';
 import './Print3.css';
+import axios from "axios";
 
 // Define the Printer interface
 export interface Printer {
   name: string;
   features: string[];
   location: string;
+}
+
+interface IDOCUMENT {
+  Name: string,
+  pages: number,
+  End_time: string,
+  time: string,
+  Format: string,
+  Number_of_pages: number
+}
+
+interface MetaInfo {
+  Name: string,
+  Number_of_pages: number,
+  PrID: number,
+  numCopies: number,
+  printingColor: string,
+  pageSide: string, 
+  typePage: string,
+  sizePage: string
 }
 
 // Define the props for PrintConfirmationDialog
@@ -16,6 +37,9 @@ interface PrintConfirmationDialogProps {
   onClose: () => void;
   onChangePrinter: () => void;
   onStartPrinting: (pages: number) => void;
+  metafile: MetaInfo;
+  setMetafile: React.Dispatch<React.SetStateAction<MetaInfo>>;
+  setFetchDocument: React.Dispatch<React.SetStateAction<IDOCUMENT[]>>;
 }
 
 // Define the props for PrinterSummary
@@ -28,6 +52,7 @@ interface PrinterSummaryProps {
 interface PrintOptionsProps {
   totalPages: number; // Only passing totalPages here
   onChangeTotalPages: (newTotalPages: number) => void;
+  setMetafile: React.Dispatch<React.SetStateAction<MetaInfo>>;
 }
 
 interface DialogActionsProps {
@@ -35,16 +60,23 @@ interface DialogActionsProps {
   onClose: () => void;
   onStartPrinting: (pages: number) => void;
   totalPages: number;
+  metafile: MetaInfo;
+  setFetchDocument: React.Dispatch<React.SetStateAction<IDOCUMENT[]>>;
 }
 
 
+
+// ALL
 const PrintConfirmationDialog: React.FC<PrintConfirmationDialogProps> = ({
   onBack,
   onClose,
   onChangePrinter,
   selectedPrinter,
   onStartPrinting,
-  totalPages }) => {
+  totalPages,
+  metafile,
+  setMetafile,
+  setFetchDocument }) => {
 
   const [updatedTotalPages, setUpdatedTotalPages] = useState<number>(totalPages);
 
@@ -69,12 +101,14 @@ const PrintConfirmationDialog: React.FC<PrintConfirmationDialogProps> = ({
             )}
           </p>
         </div>
-        <PrintOptions totalPages={updatedTotalPages} onChangeTotalPages={handleTotalPagesChange} />
+        <PrintOptions totalPages={updatedTotalPages} onChangeTotalPages={handleTotalPagesChange} setMetafile={setMetafile} />
         <DialogActions
           onBack={onBack}
           onClose={onClose}
           onStartPrinting={handleConfirmClick} // Use the new confirmation handler
           totalPages={updatedTotalPages}
+          metafile={metafile}
+          setFetchDocument={setFetchDocument}
         />
       </div>
     </div>
@@ -88,11 +122,11 @@ const PrinterSummary: React.FC<PrinterSummaryProps> = ({ onChangePrinter, printe
         <img src="image/printer.png" alt="Printer" className="printer-image" />
         <div className="printer-details">
           <h3 className="printer-name">{printer.name}</h3>
-          <div className="printer-features">
-            <span className="badge color-badge">In màu</span>
-            <span className="badge duplex-badge">2 mặt</span>
+          <div className="printer-features2">
+            <span className={`badge ${printer.features[0] === 'In màu' ? 'color-badge' : 'duplex-badge'}`}>{printer.features[0]}</span>
+            <span className="badge duplex-badge">{printer.features[1]}</span>
           </div>
-          <p className="printer-location">Tầng 3 • Tòa B4</p>
+          <p className="printer-location">{printer.location}</p>
         </div>
       </div>
       <a
@@ -110,8 +144,31 @@ const PrinterSummary: React.FC<PrinterSummaryProps> = ({ onChangePrinter, printe
 };
 
 
-const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPages }) => {
+const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPages, setMetafile }) => {
   const [pageNumbers, setPageNumbers] = useState<string>(''); // Store page numbers as input
+  const [selectedTypePage, setSelectedTypePage] = useState<string>();
+
+  const [selectedLayout, setSelectedLayout] = useState<string>('potrait');
+  const [selectedColor, setSelectedColor] = useState<string>();
+
+  const handleTypePageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const {value} = e.target;
+    setMetafile(prev => ({...prev, typePage: value}))
+    console.log(value);
+    setSelectedTypePage(value);
+  }
+  const handleSelectedColorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const {value} = e.target;
+    setMetafile(prev => ({...prev, printingColor: value})) // set printingColor to metafile
+    console.log(value);
+    setSelectedColor(value);
+  }
+
+  const handleSelectedLayout = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {value} = e.target;
+    console.log(value);
+    setSelectedLayout(value);
+  }
 
   // Handle the input of page numbers to print
   const handlePageNumbersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,6 +178,7 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
     // Calculate total number of pages based on page numbers input
     const pagesArray = value.split(',').map((num) => parseInt(num.trim(), 10)).filter((num) => !isNaN(num));
     const newTotalPages = pagesArray.length;
+    setMetafile(prev => ({...prev, Number_of_pages: newTotalPages}));
     onChangeTotalPages(newTotalPages); // Update totalPages in parent component
   };
 
@@ -128,20 +186,22 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
     <div className="print-options">
       <div className="option-group">
         <label className="option-label">Kích cỡ giấy</label>
-        <select className="option-select">
-          <option>A4</option>
-          <option>A3</option>
+        <select className="option-select" value={selectedTypePage} onChange={handleTypePageChange}>
+          <option disabled value="none" selected>Chọn kích cỡ</option>
+          <option value={"A3"}>A3</option>
+          <option value={"A4"}>A4</option>
+          <option value={"A5"}>A5</option>
         </select>
       </div>
       <div className="option-group">
         <label className="option-label">Bố cục</label>
         <div className="radio-group">
-          <label className="radio-option">
-            <input type="radio" name="layout" value="dọc" />
+          <label>
+            <input type="radio" name="layout" onChange={handleSelectedLayout} checked={selectedLayout === "potrait"} value="potrait" />
             Dọc
           </label>
-          <label className="radio-option">
-            <input type="radio" name="layout" value="ngang" defaultChecked />
+          <label>
+            <input type="radio" name="layout" onChange={handleSelectedLayout} checked={selectedLayout === "landscape"}  value="landscape" />
             Ngang
           </label>
         </div>
@@ -167,9 +227,10 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
 
       <div className="option-group">
         <label className="option-label">Màu</label>
-        <select className="option-select">
-          <option>Trắng đen</option>
-          <option>In màu</option>
+        <select className="option-select" value={selectedColor} onChange={handleSelectedColorChange} >
+          <option disabled value="none" selected>Chọn kích cỡ</option>
+          <option value={"Black and white"}>Trắng đen</option>
+          <option value={"Color"}>In màu</option>
         </select>
       </div>
       <div className="option-group">
@@ -198,15 +259,62 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
 };
 
 
-const DialogActions: React.FC<DialogActionsProps> = ({ onBack, onClose, onStartPrinting, totalPages }) => {
+const DialogActions: React.FC<DialogActionsProps> = ({ onBack, onClose, onStartPrinting, totalPages, metafile, setFetchDocument }) => {
+
+  function separateFilenameRegex(filename: string): { name: string, format: string } {
+    const match = filename.match(/^(.*)\.([^.]*)$/);
+        if (match) {
+            return { name: match[1], format: match[2] };
+        }
+        return { name: filename, format: '' }; // If no format, return empty string
+    }  
+
+    function APIcallPrintOrder() {
+      const {name, format} = separateFilenameRegex(metafile.Name);
+
+      const {ID} = JSON.parse(localStorage.getItem("myid") || '');
+          const sendData = 
+          {
+            "Name": name, 
+            "Format": format,
+            "Number_of_pages": metafile.Number_of_pages,
+            "PrID": metafile.PrID,
+            "order": {
+              "numCopies": 1, 
+              "printingColor": metafile.printingColor, 
+              "pageSide": "Double-sided", 
+              "typePage": metafile.typePage, 
+              "sizePage": "Letter", 
+              "studentID": ID
+            }
+          }
+          console.log(sendData);
+          axios.post('http://localhost:8081/api/print/addOrder', sendData).then(
+            res => {
+              console.log(res);
+            }
+          ).catch(err => console.log(err))
+          
+          
+    }
+
   return (
     <div className="dialog-actions">
       <button className="cancel-button" onClick={onBack}>Trở lại</button>
       <button
         className="confirm-button"
         onClick={() => {
-          onStartPrinting(totalPages);
-          onClose();
+          //confirm printing action and start API call to the server
+          const {ID} = JSON.parse(localStorage.getItem("myid") || '');
+          APIcallPrintOrder();
+          
+          
+          axios.post('http://localhost:8081/api/student/updateBalance', {id: ID, numberUpdate: metafile.Number_of_pages * -1}).then(
+            res => {
+              onStartPrinting(totalPages);
+              onClose();
+            }
+          );
         }}
       >
         Xác nhận

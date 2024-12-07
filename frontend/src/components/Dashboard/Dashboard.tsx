@@ -3,22 +3,56 @@ import './Dashboard.css';
 import PrintDialog from '../Print/Print';
 import PrinterSelectionDialog from '../Print2/Print2';
 import PrintConfirmationDialog from '../Print3/Print3';
+import AddPageNumber from '../AddPageNumber/AddPageNumber';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'
 
-interface DashboardProps {
-  // onLogout: () => void;
+
+
+interface IDOCUMENT {
+  Name: string,
+  pages: number,
+  End_time: string,
+  time: string,
+  Format: string,
+  Number_of_pages: number
 }
 
+
+
 interface Printer {
+  PrID: number,
   name: string;
   features: string[];
   location: string;
 }
 
+interface MetaInfo {
+  Name: string,
+  Number_of_pages: number,
+  PrID: number,
+  numCopies: number,
+  printingColor: string,
+  pageSide: string, 
+  typePage: string,
+  sizePage: string
+}
+
+
+interface DashboardProps {
+  // onLogout: () => void;
+}
+
+
+// interface HeaderProps {
+//   onOpenPrintDialog: () => void;
+//   onLogout: () => void;
+// }
+
 interface HeaderProps {
   onOpenPrintDialog: () => void;
   onLogout: () => void;
+  onOpenAddPageDialog: () => void;
 }
 
 interface CurrentPrintOrderProps {
@@ -28,15 +62,20 @@ interface CurrentPrintOrderProps {
   totalPages: number;
 }
 
+interface RecentPrintsProps {
+  fetchDocument: IDOCUMENT[];
+  setFetchDocument: React.Dispatch<React.SetStateAction<IDOCUMENT[]>>;
+}
 
-const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onLogout }) => {
+
+const Header: React.FC<HeaderProps> = ({ onOpenPrintDialog, onLogout, onOpenAddPageDialog }) => {
   return (
     <header className="header">
 
       <nav className="nav">
         <a href="#" className="nav-link active">Trang chủ</a>
         <a href="#" className="nav-link" onClick={onOpenPrintDialog}>In tài liệu</a>
-        <a href="#" className="nav-link">Thêm số trang</a>
+        <a href="#" className="nav-link" onClick={onOpenAddPageDialog} >Thêm số trang</a>
         <a href="#" className="nav-link" onClick={(e) => {
           e.preventDefault();
           const footer = document.getElementById('footer');
@@ -85,19 +124,9 @@ const Footer: React.FC = () => {
   );
 };
 
-interface IDOCUMENT {
-  Name: string,
-  pages: number,
-  End_time: string,
-  time: string,
-  Format: string,
-  Number_of_pages: number
-}
 
-
-const RecentPrints: React.FC = () => {
-  const [fetchDocument, setFetchDocument] = useState<[IDOCUMENT]>([{Name: '', pages: 0, End_time: '', time: '', Format: '', Number_of_pages: 0}]);
-
+const RecentPrints: React.FC<RecentPrintsProps> = ({fetchDocument, setFetchDocument}) => {
+  
   const {ID} = JSON.parse(localStorage.getItem("myid") || '');
 
   React.useEffect(() => {
@@ -106,9 +135,10 @@ const RecentPrints: React.FC = () => {
         if (res.data) setFetchDocument(res.data);
       }
     ).catch(err => {console.log(err)});
+    console.log(fetchDocument);
   }, []);
-  const documents = fetchDocument.map(document => {
-    return {name: `${document.Name}.${document.Format}`, pages: `${document.Number_of_pages}`, date: `10-10-2024`}
+  var documents = fetchDocument.map((document) => {
+    return {name: `${document.Name}.${document.Format}`, pages: document.Number_of_pages, date: document.End_time}
   });
   // [
   //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
@@ -130,7 +160,7 @@ const RecentPrints: React.FC = () => {
             <img src="/placeholder.svg?height=24&width=24" alt="Document Icon" className="document-icon" />
             <div className="document-info">
               <span className="document-name">{doc.name}</span>
-              <span className="document-details">{doc.pages} trang • {doc.date}</span>
+              <span className="document-details">Số trang: {doc.pages} trang • Thời gian in: {doc.date}</span>
             </div>
           </li>
         ))}
@@ -201,12 +231,41 @@ const getDayClass = (day: number): string => {
   }
 };
 
+
+
+
 const Dashboard: React.FC<DashboardProps> = () => {
-  const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation'>('none');
+
+  const [fetchDocument, setFetchDocument] = useState<IDOCUMENT[]>([{Name: '', pages: 0, End_time: '', time: '', Format: '', Number_of_pages: 0}]);
+
+  const [currentDialog, setCurrentDialog] = useState<'none' | 'print' | 'printer-selection' | 'print-confirmation' | 'add-page-number'>('none');
+
+  const handleOpenAddPageNumberDialog = () => {
+    setCurrentDialog('add-page-number');
+  };
+
   const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0); // Manage total pages state
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
+
+  const [showAvailablePages, setShowAvailablePages] = useState(0);
+  
+
+
+  const [metafile, setMetafile] = useState<MetaInfo>(
+    {
+      Name: '',
+      Number_of_pages: 0,
+      PrID: 0,
+      numCopies: 0,
+      printingColor: '',
+      pageSide: '', 
+      typePage: '',
+      sizePage: ''
+    }
+  );
+
 
   /*logout handle function */
   const navigate = useNavigate();
@@ -222,8 +281,17 @@ const Dashboard: React.FC<DashboardProps> = () => {
             }
     }).catch(err => console.log(err))
   };
-  const {Available_Pages} = JSON.parse(localStorage.getItem("myid") || '');
+  const {ID} = JSON.parse(localStorage.getItem("myid") || '');
   
+  React.useEffect(() => {
+    axios.get(`http://localhost:8081/api/student/balance/${ID}`).then(
+      res => {
+        if (res.data) {
+          setShowAvailablePages(res.data.Available_Pages);
+        }
+      }
+    );
+  }, []);
 
   const handleOpenPrintDialog = () => {
     setCurrentDialog('print');
@@ -256,40 +324,42 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   // Function to start the printing process
   const handleStartPrinting = (pages: number) => {
-    if (pages === 0) {
-      alert('Không có trang nào để in!');
-      return;
-    }
-
-    setIsPrinting(true);
-    setLoadingProgress(0);
-    setTotalPages(pages);
-    
-    // Simulate printing progress for each page (1 second per page)
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 100 / pages;
-      setLoadingProgress(progress);
-
-      if (progress >= 100) {
-        clearInterval(interval);
-        setIsPrinting(false);
-        alert("In thành công!");
-
-        setTotalPages(0);
+      if (pages === 0) {
+        alert('Không có trang nào để in!');
+        return;
       }
-    }, 1000); // Update progress every second (1 second per page)
+  
+      setIsPrinting(true);
+      setLoadingProgress(0);
+      setTotalPages(pages);
+      
+      // Simulate printing progress for each page (1 second per page)
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 100 / pages;
+        setLoadingProgress(progress);
+  
+        if (progress >= 100) {
+          clearInterval(interval);
+          setIsPrinting(false);
+          alert("In thành công!");
+          window.location.reload();
+          setTotalPages(0);
+        }
+      }, 1000); // Update progress every second (1 second per page)
+    
+    
   };
 
   return (
     <div className="dashboard">
-      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={handleLogout} />
+      <Header onOpenPrintDialog={handleOpenPrintDialog} onLogout={handleLogout} onOpenAddPageDialog={handleOpenAddPageNumberDialog} />
       <div className="main-content">
         <div className="left-menu">
           <div className="stats">
             <div className="stat-item">
               <span>Số dư còn lại: </span>
-              <span>{Available_Pages}</span>
+              <span>{showAvailablePages}</span>
             </div>
             <div className="stat-item">
               <span>Số lệnh in: </span>
@@ -307,7 +377,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
             <h1>Ho Chi Minh City University Of Technology</h1>
             <h2>Student Smart Printing Service</h2>
           </div>
-          <RecentPrints />
+          <RecentPrints fetchDocument={fetchDocument} setFetchDocument={setFetchDocument} />
         </div>
 
         {/* RIGHT MENU */}
@@ -325,7 +395,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
       <Footer />
 
       {currentDialog === 'print' && (
-        <PrintDialog onClose={handleCloseDialog} onContinue={handleContinueToPrinterSelection} />
+        <PrintDialog onClose={handleCloseDialog} onContinue={handleContinueToPrinterSelection} setMetafile={setMetafile} />
       )}
       {currentDialog === 'printer-selection' && (
         <PrinterSelectionDialog
@@ -333,6 +403,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
           onClose={handleCloseDialog}
           onContinue={handleContinueToPrintConfirmation}
           onSelectPrinter={handleSelectPrinter}
+          metafile={metafile}
+          setMetafile={setMetafile}
         />
       )}
       {currentDialog === 'print-confirmation' && (
@@ -343,8 +415,17 @@ const Dashboard: React.FC<DashboardProps> = () => {
           onClose={handleCloseDialog}
           onChangePrinter={handleBackToPrinterSelection}
           onStartPrinting={handleStartPrinting}
+          metafile={metafile}
+          setMetafile={setMetafile}
+          setFetchDocument={setFetchDocument}
         />
       )}
+    {currentDialog === 'add-page-number' && (
+      <AddPageNumber
+        onClose={handleCloseDialog}
+        onSubmit={handleOpenAddPageNumberDialog}
+      />
+    )}
     </div>
   );
 };

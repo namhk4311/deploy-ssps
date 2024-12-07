@@ -3,9 +3,21 @@ import './Print2.css';
 import axios from 'axios';
 
 export interface Printer {
+  PrID: number,
   name: string;
   features: string[];
   location: string;
+}
+
+interface MetaInfo {
+  Name: string,
+  Number_of_pages: number,
+  PrID: number,
+  numCopies: number,
+  printingColor: string,
+  pageSide: string, 
+  typePage: string,
+  sizePage: string
 }
 
 interface PrinterSelectionDialogProps {
@@ -13,12 +25,14 @@ interface PrinterSelectionDialogProps {
   onClose: () => void;
   onContinue: () => void;
   onSelectPrinter: (printer: Printer) => void;
+  metafile: MetaInfo;
+  setMetafile: React.Dispatch<React.SetStateAction<MetaInfo>>;
 }
 
-const PrinterSelectionDialog: React.FC<PrinterSelectionDialogProps> = ({ onBack, onClose, onContinue, onSelectPrinter }) => {
+const PrinterSelectionDialog: React.FC<PrinterSelectionDialogProps> = ({ onBack, onClose, onContinue, onSelectPrinter, metafile, setMetafile }) => {
   // chỗ này sẽ dùng database
 
-  const [allPrinter, setAllPrinter] = React.useState([{PrID: null, Model: '', Floor: '', Campus: '', Short_description: '', Building: ''}]);
+  const [allPrinter, setAllPrinter] = React.useState([{PrID: 0, Model: '', Floor: '', Campus: '', Short_description: '', Building: ''}]);
   React.useEffect(() => {
     axios.get('http://localhost:8081/api/printer/all').
     then(res => {
@@ -36,7 +50,7 @@ const PrinterSelectionDialog: React.FC<PrinterSelectionDialogProps> = ({ onBack,
   // ];
 
   const printers = allPrinter.slice(0, 6).map(
-    (printer, index) => ({name: printer.Model, features: (index % 2 ? ['In màu', '1 mặt'] : ['In màu', '2 mặt']), location: `Tầng ${printer.Floor} • Toà ${printer.Building}`})
+    (printer) => ({PrID: printer.PrID, name: printer.Model, features: printer.Short_description.split("; "), location: `Tầng ${printer.Floor} • Toà ${printer.Building}`})
   );
 
   return (
@@ -46,7 +60,7 @@ const PrinterSelectionDialog: React.FC<PrinterSelectionDialogProps> = ({ onBack,
           <h2 className="dialog-heading">Tạo lệnh in</h2>
           <h2 className="dialog-close-button" onClick={onClose}> X </h2>
           <p className="dialog-description">
-            Chọn máy in để thực hiện in <a href="#">Document_A.docx</a>
+            Chọn máy in để thực hiện in <a href="#">{metafile.Name}</a>
           </p>
         </div>
         <div className="printer-grid">
@@ -54,11 +68,14 @@ const PrinterSelectionDialog: React.FC<PrinterSelectionDialogProps> = ({ onBack,
             <PrinterCard
               key={index}
               printer={printer}
-              onSelect={() => onSelectPrinter(printer)} // Call onSelectPrinter when clicked
+              onSelect={() => {
+                setMetafile(prev => ({...prev, PrID: printer.PrID})); //set PrID to metafile;
+                onSelectPrinter(printer)
+              }} // Call onSelectPrinter when clicked
             />
           ))}
         </div>
-        <DialogActions onBack={onBack} onClose={onClose} onContinue={onContinue} onSelectPrinter={onSelectPrinter}/>
+        <DialogActions onBack={onBack} onClose={onClose} onContinue={onContinue} onSelectPrinter={onSelectPrinter} metafile={metafile} setMetafile={setMetafile}/>
       </div>
     </div>
   );
@@ -75,7 +92,7 @@ const PrinterCard: React.FC<{ printer: Printer; onSelect: () => void }> = ({ pri
       <div className="printer-details">
         <h3 className="printer-name">{printer.name}</h3>
         <div className="printer-features">
-          {printer.features.map((feature, index) => (
+          {printer.features.slice(0,2).map((feature, index) => (
             <span key={index} className={`badge ${feature === 'In màu' ? 'color-badge' : 'duplex-badge'}`}>
               {feature}
           {/* {printer.features.map((feature, index) => (
@@ -94,7 +111,11 @@ const DialogActions: React.FC<PrinterSelectionDialogProps> = ({ onBack, onContin
   return (
     <div className="dialog-actions">
       <button className="cancel-button" onClick={onBack} >Trở lại</button>
-      <button className="continue-button" onClick={onContinue} >Tiếp tục</button>
+      <button className="continue-button" onClick={() => {
+        //confirm choosing desired printer
+
+        onContinue();}
+      } >Tiếp tục</button>
     </div>
   );
 };

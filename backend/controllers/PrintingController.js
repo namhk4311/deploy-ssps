@@ -26,7 +26,41 @@ async function retrieveAllDocumentOrder(req, res, next) {
     }
 }
 
+async function AddingPrintingOrder(req, res, next) {
+    try {
+        const dataDoc = {
+            Name: req.body.Name, 
+            Format: req.body.Format,
+            Number_of_pages: req.body.Number_of_pages,
+            PrID: req.body.PrID
+        }
+        await documentDAO.addNewPrintingDocument(dataDoc);
+
+        const result1 = await documentDAO.retrieveLatestDocumentID();
+        console.log(result1[0]);
+        if (result1.length > 0) {
+            const dataOrder = {
+                numCopies: req.body.order.numCopies, 
+                printingColor: req.body.order.printingColor, 
+                pageSide: req.body.order.pageSide, 
+                typePage: req.body.order.typePage, 
+                sizePage: req.body.order.sizePage, 
+                studentID: req.body.order.studentID, 
+                documentID: result1[0].DocumentID
+            }
+            const result2 = await printingDAO.updateNewOrder(dataOrder);
+            if (result2.affectedRows > 0) return res.json({Message: "Adding new printing order successfully"});
+            return res.json({Message: "Adding new printing order failed"});
+        }
+        return res.json({Message: "There are no document in database"})
+    }
+    catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     getDocumentByStudentID,
-    retrieveAllDocumentOrder
+    retrieveAllDocumentOrder,
+    AddingPrintingOrder
 }

@@ -2,12 +2,32 @@ import React from 'react';
 import { useRef, useState } from 'react';
 import './Print.css';
 
+interface MetaInfo {
+  Name: string,
+  Number_of_pages: number,
+  PrID: number,
+  numCopies: number,
+  printingColor: string,
+  pageSide: string, 
+  typePage: string,
+  sizePage: string
+}
+
+
+
 interface PrintDialogProps {
   onClose: () => void;
   onContinue: () => void;
+  setMetafile: React.Dispatch<React.SetStateAction<MetaInfo>>;
 }
 
-const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
+// add File Upload props
+
+interface FileUploadAreaProps {
+  setMetafile: React.Dispatch<React.SetStateAction<MetaInfo>>;
+}
+
+const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue, setMetafile }) => {
   return (
     <div className="print-dialog">
       <div className="dialog-container">
@@ -18,8 +38,8 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
           </p>
         </div>
         {/* <TabNavigation /> */}
-        <FileUploadArea />
-        <DialogActions onClose={onClose} onContinue={onContinue} />
+        <FileUploadArea setMetafile={setMetafile} />
+        <DialogActions onClose={onClose} onContinue={onContinue} setMetafile={setMetafile} />
       </div>
     </div>
   );
@@ -35,13 +55,19 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
 //   );
 // };
 
-const FileUploadArea: React.FC = () => {
+
+const FileUploadArea: React.FC<FileUploadAreaProps> = ({setMetafile}) => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null); 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Handle file selection
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      setMetafile(prev => {
+        if (e.target.files) return {...prev, Name: e.target.files[0].name}
+        return prev;
+      })
+      console.log('name file', e.target.files[0].name);
       setUploadedFile(e.target.files[0]);
     }
   };
@@ -68,6 +94,7 @@ const FileUploadArea: React.FC = () => {
     >
       <input
         type="file"
+        accept="application/pdf"
         ref={fileInputRef}
         style={{ display: 'none' }} // Hide the actual input
         onChange={handleFileSelect}
@@ -86,7 +113,7 @@ const FileUploadArea: React.FC = () => {
   );
 };
 
-const DialogActions: React.FC<PrintDialogProps> = ({ onClose, onContinue }) => {
+const DialogActions: React.FC<PrintDialogProps> = ({ onClose, onContinue}) => {
   return (
     <div className="dialog-actions">
       <button className="cancel-button" onClick={onClose}>Hủy</button>

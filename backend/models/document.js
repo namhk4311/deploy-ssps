@@ -15,13 +15,45 @@ async function showAllDocument() {
     }
 }
 
-async function print() {
-    const result = await showAllDocument();
-    console.log(result);
+async function retrieveLatestDocumentID() {
+    try {
+        const sql = `
+            SELECT DocumentID FROM DOCUMENT ORDER BY DocumentID DESC LIMIT 1;
+        `;
+        const [result] = await db.query(sql);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
 }
+
+async function addNewPrintingDocument(data) {
+    try {
+        const {Name, Format, Number_of_pages, PrID} = data;
+        const sql = `
+            INSERT INTO DOCUMENT(Name, Format, Number_of_pages, PrID)
+            VALUES
+            (?, ?, ?, ?);
+        `;
+        const [result] = await db.query(sql, [Name, Format, Number_of_pages, PrID]);
+        return result;
+    }
+    catch(err) {
+        throw err;
+    }
+}
+
+// async function print() {
+//     const result = await retrieveLatestDocumentID();
+//     console.log(result);
+// }
 // print();
 
 
+
 module.exports = {
-    showAllDocument
+    showAllDocument,
+    retrieveLatestDocumentID,
+    addNewPrintingDocument
 }

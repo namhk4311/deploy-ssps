@@ -87,9 +87,21 @@ const verifyUser = (req, res, next) => {
 
 async function getStudentBalance(req, res, next) {
     try {
-        const result = studentDAO.getBalance(req.params.id);
+        const result = await studentDAO.getBalance(req.params.id);
         if (result) return res.json(result);
         return res.json({Message: "Fetch student balance failed"});
+    }
+    catch (err) {
+        next(err);
+    }
+}
+
+async function updateBalance(req, res, next) {
+    try {
+        console.log(req.body.numberUpdate);
+        const result = await studentDAO.updateStudentBalance(req.body.id, req.body.numberUpdate);
+        if (result && result.affectedRows > 0) return res.json(result); 
+        return res.json({Message: "Update student balance failed"});
     }
     catch (err) {
         next(err);
@@ -103,5 +115,6 @@ module.exports = {
     getSPSOInfo,
     logoutUser,
     verifyUser,
-    getStudentBalance
+    getStudentBalance,
+    updateBalance
 }
