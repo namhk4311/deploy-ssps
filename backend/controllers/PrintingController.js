@@ -14,6 +14,28 @@ async function getDocumentByStudentID(req, res, next) {
     }
 }
 
+async function getTotalNumberOrderByID(req, res, next) {
+    try {
+        const result = await printingDAO.retrieveTotalOrderByStudentID(req.params.id);
+        if (result.length > 0) return res.json(result[0])
+        return res.json({Message: "Get Total Order failed"});
+    }
+    catch (err) {
+        next(err);
+    }
+}
+
+async function getTotalNumberPageByID(req, res, next) {
+    try {
+        const result = await printingDAO.retrieveTotalPagePrintedByID(req.params.id);
+        if (result.length > 0) return res.json(result[0]);  
+        return res.json({Message: "Get total page failed"});
+    }
+    catch (err) {
+        next(err);
+    }
+}
+
 async function retrieveAllDocumentOrder(req, res, next) {
     try {
         const result = await documentDAO.showAllDocument();
@@ -42,9 +64,10 @@ async function AddingPrintingOrder(req, res, next) {
             const dataOrder = {
                 numCopies: req.body.order.numCopies, 
                 printingColor: req.body.order.printingColor, 
-                pageSide: req.body.order.pageSide, 
-                typePage: req.body.order.typePage, 
+                pageSide: req.body.order.pageSide,  
                 sizePage: req.body.order.sizePage, 
+                layout: req.body.order.layout,
+                oddEven: req.body.order.oddEven,
                 studentID: req.body.order.studentID, 
                 documentID: result1[0].DocumentID
             }
@@ -62,5 +85,7 @@ async function AddingPrintingOrder(req, res, next) {
 module.exports = {
     getDocumentByStudentID,
     retrieveAllDocumentOrder,
+    getTotalNumberOrderByID,
+    getTotalNumberPageByID,
     AddingPrintingOrder
 }

@@ -34,8 +34,9 @@ interface MetaInfo {
   numCopies: number,
   printingColor: string,
   pageSide: string, 
-  typePage: string,
-  sizePage: string
+  sizePage: string,
+  layout: string,
+  oddEven: string
 }
 
 
@@ -139,7 +140,7 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({fetchDocument, setFetchDocum
   }, []);
   var documents = fetchDocument.map((document) => {
     return {name: `${document.Name}.${document.Format}`, pages: document.Number_of_pages, date: document.End_time}
-  });
+  }).reverse();
   // [
   //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
   //   { name: 'Document_A.docx', pages: 12, time: '15:00 PM', date: '22/10/2023' },
@@ -157,7 +158,7 @@ const RecentPrints: React.FC<RecentPrintsProps> = ({fetchDocument, setFetchDocum
       <ul>
         {documents.map((doc, index) => (
           <li key={index} className="document-item">
-            <img src="/placeholder.svg?height=24&width=24" alt="Document Icon" className="document-icon" />
+            <img src="/image/document.svg" alt="Document Icon" className="document-icon" />
             <div className="document-info">
               <span className="document-name">{doc.name}</span>
               <span className="document-details">Số trang: {doc.pages} trang • Thời gian in: {doc.date}</span>
@@ -250,7 +251,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
   const [showAvailablePages, setShowAvailablePages] = useState(0);
-  
+  const [showTotalOrder, setShowTotalOrder] = useState(0);
+  const [showTotalPage, setShowTotalPage] = useState(0);
 
 
   const [metafile, setMetafile] = useState<MetaInfo>(
@@ -261,8 +263,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
       numCopies: 0,
       printingColor: '',
       pageSide: '', 
-      typePage: '',
-      sizePage: ''
+      sizePage: '',
+      layout: '',
+      oddEven: ''
     }
   );
 
@@ -291,6 +294,22 @@ const Dashboard: React.FC<DashboardProps> = () => {
         }
       }
     );
+
+    axios.get(`http://localhost:8081/api/print/order/${ID}`). then(
+      res => {
+        if (res.data) {
+          setShowTotalOrder(res.data.totalOrder);
+        }
+      }
+    );
+
+    axios.get(`http://localhost:8081/api/print/totalpage/${ID}`).then(
+      res => {
+        if (res.data && res.data.TotalPagesPrinted) {
+          setShowTotalPage(res.data.TotalPagesPrinted);
+        }
+      }
+    )
   }, []);
 
   const handleOpenPrintDialog = () => {
@@ -363,11 +382,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
             </div>
             <div className="stat-item">
               <span>Số lệnh in: </span>
-              <span>19</span>
+              <span>{showTotalOrder}</span>
             </div>
             <div className="stat-item">
-              <span>Số trang đã in: </span>
-              <span>150</span>
+              <span>Số tờ giấy đã in: </span>
+              <span>{showTotalPage}</span>
             </div>
           </div>
         </div>

@@ -78,9 +78,10 @@ CREATE TABLE PRINT_ORDER (
     Cancel_time DATETIME,
     Number_of_copies INT,
     Printing_color VARCHAR(20),
-    Page_side ENUM('One-sided', 'Double-sided') NOT NULL DEFAULT 'One-sided',
-    Type_of_page VARCHAR(50),
+    Page_side ENUM('One-sided', 'Double-sided') DEFAULT 'One-sided',
     Size_of_page VARCHAR(50),
+    layout ENUM('Potrait', 'Landscape') DEFAULT 'Potrait',
+    oddEven ENUM('Odd', 'Even', 'All', 'Custom') DEFAULT 'All',
     studentID INT NOT NULL,
     DocumentID INT NOT NULL,
     FOREIGN KEY (studentID) REFERENCES STUDENT(ID),
@@ -105,7 +106,28 @@ END$$
 
 DELIMITER ;
 
+DELIMITER $$
 
+CREATE PROCEDURE CalculateTotalPagesPrinted(IN studentID INT)
+BEGIN
+    SELECT 
+        SUM(
+            CASE 
+                WHEN Page_side = 'Double-sided' THEN 
+                    Number_of_copies * CEIL(Number_of_pages / 2) 
+                ELSE 
+                    Number_of_copies * Number_of_pages         
+            END
+        ) AS TotalPagesPrinted
+    FROM 
+        PRINT_ORDER
+    JOIN 
+        DOCUMENT ON PRINT_ORDER.DocumentID = DOCUMENT.DocumentID
+    WHERE 
+        PRINT_ORDER.studentID = studentID;
+END$$
+
+DELIMITER ;
 
 
 INSERT INTO USER (ID, Email, Password, F_Name, M_Name, L_Name, Role) 
@@ -145,46 +167,48 @@ VALUES
 
 INSERT INTO PRINT_ORDER (
     Start_time, End_time, Cancel_time, Number_of_copies, 
-    Printing_color, Page_side, Type_of_page, Size_of_page, 
+    Printing_color, Page_side, Size_of_page, layout, oddEven, 
     studentID, DocumentID
 ) 
 VALUES 
 ('2024-12-05 08:00:00', '2024-12-05 08:15:00', NULL, 2, 
- 'Color', 'Double-sided', 'A4', 'Letter', 
+ 'Color', 'Double-sided', 'A4', 'Potrait', 'All', 
  2252500, 1),
 ('2024-12-05 08:00:00', '2024-12-05 08:15:00', NULL, 1, 
- 'Black and White', 'Double-sided', 'A4', 'Letter', 
+ 'Black and White', 'Double-sided', 'A4', 'Potrait', 'Odd',
  2252500, 2),
 ('2024-12-05 08:00:00', '2024-12-05 08:15:00', NULL, 1, 
- 'Black and White', 'Double-sided', 'A4', 'Letter', 
+ 'Black and White', 'Double-sided', 'A4', 'Potrait', 'Even',
  2252500, 3),
  ('2024-12-05 08:00:00', '2024-12-05 08:15:00', NULL, 2, 
- 'Black and White', 'Double-sided', 'A5', 'Letter', 
+ 'Black and White', 'Double-sided', 'A5', 'Potrait', 'Custom',
  2252500, 4),
  ('2024-12-05 08:00:00', '2024-12-05 08:15:00', NULL, 3, 
- 'Color', 'Double-sided', 'A5', 'Letter', 
+ 'Color', 'Double-sided', 'A5', 'Potrait', 'All',
  2252500, 5),
  ('2024-12-05 08:00:00', '2024-12-05 08:15:00', NULL, 1, 
- 'Black and White', 'Double-sided', 'A4', 'Letter', 
+ 'Black and White', 'Double-sided', 'A4', 'Landscape', 'Custom',
  2252500, 6),
 ('2024-12-05 09:30:00', '2024-12-05 09:45:00', NULL, 1, 
- 'Black and White', 'One-sided', 'A4', 'Letter', 
+ 'Black and White', 'One-sided', 'A4', 'Landscape', 'All',
  2252225, 2),
 ('2024-12-05 10:00:00', NULL, '2024-12-05 10:05:00', 3, 
- 'Color', 'Double-sided', 'A4', 'Letter', 
+ 'Color', 'Double-sided', 'A4', 'Potrait', 'Custom',
  2152933, 3),
 ('2024-12-05 11:00:00', '2024-12-05 11:20:00', NULL, 5, 
- 'Color', 'One-sided', 'A5', 'Booklet', 
+ 'Color', 'One-sided', 'A5', 'Potrait', 'All',
  2252508, 4),
 ('2024-12-05 14:00:00', '2024-12-05 14:10:00', NULL, 10, 
- 'Black and White', 'Double-sided', 'A4', 'Letter', 
+ 'Black and White', 'Double-sided', 'A4', 'Landscape', 'Even',
  2252500, 5),
  ('2024-12-02 12:10:00','2024-12-02 12:13:00', NULL, 3, 
- 'Color', 'One-sided', 'A5', 'Booklet', 
+ 'Color', 'One-sided', 'A5', 'Potrait', 'Odd',
  2252093, 6),
  ('2024-12-01 11:10:00', '2024-12-01 11:12:00', NULL, 1, 
- 'Color', 'Double-sided', 'A4', 'Letter', 
+ 'Color', 'Double-sided', 'A4', 'Potrait', 'All',
  2252508, 7),
  ('2024-11-30 08:10:00', '2024-11-30 08:12:00', NULL, 1, 
- 'Black and White', 'Double-sided', 'A4', 'Letter', 
+ 'Black and White', 'Double-sided', 'A4', 'Potrait', 'Even',
  2252508, 8);
+
+

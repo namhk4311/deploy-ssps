@@ -16,8 +16,9 @@ interface MetaInfo {
   numCopies: number,
   printingColor: string,
   pageSide: string, 
-  typePage: string,
-  sizePage: string
+  sizePage: string,
+  layout: string,
+  oddEven: string
 }
 
 interface PrinterSelectionDialogProps {

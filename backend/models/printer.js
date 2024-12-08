@@ -1,3 +1,4 @@
+const { checkOnline } = require('../controllers/PrinterController');
 const db = require('../database/db');
 
 async function enablePrinter(printerID) {
@@ -67,6 +68,20 @@ async function addPrinter(data) {
     }
 }
 
+async function checkPrinterOnline(PrID) {
+    try {
+        const sql = `
+            SELECT Status
+            FROM PRINTER
+            WHERE PrID = ?;
+        `;
+        const [result] = await db.query(sql, [PrID]);
+        return result;
+    }
+    catch (err) {
+        throw err;
+    }
+}
 
 async function updatePrinter(PrID, data) {
     const {
@@ -106,23 +121,23 @@ async function deletePrinter(PrID) {
 
 
 async function print() {
-    const data = {
-        "Campus": "1",
-        "Building": "B8",
-        "Floor": "305",
-        "Model": "Canon AC",
-        "Short_description": "None",
-        "Brand": "HP"
-    }
+    // const data = {
+    //     "Campus": "1",
+    //     "Building": "B8",
+    //     "Floor": "305",
+    //     "Model": "Canon AC",
+    //     "Short_description": "None",
+    //     "Brand": "HP"
+    // }
 
-    // const result5 = await addPrinter(data);
+    // // const result5 = await addPrinter(data);
 
-    // await updatePrinter(5, data);
-    const result5 = await enablePrinter(1);
-    // await deletePrinter(5);
+    // // await updatePrinter(5, data);
+    // const result5 = await enablePrinter(1);
+    // // await deletePrinter(5);
 
-    const result = await showAllPrinter();
-    console.log(result5);
+    const result = await checkPrinterOnline(1);
+    console.log(result);
 }
 
 // print();
@@ -134,5 +149,6 @@ module.exports = {
     showAllPrinter,
     addPrinter,
     updatePrinter,
-    deletePrinter
+    deletePrinter,
+    checkPrinterOnline
 };

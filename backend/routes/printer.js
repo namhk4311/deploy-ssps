@@ -12,9 +12,14 @@ router.get('/all', printerController.showAll);
 
 router.post('/add', printerController.requestAdd);
 
-router.put('/enable/:id', printerController.enable);
+router.get('/enable/:id', printerController.enable);
 
-router.put('/disable/:id', printerController.disable);
+router.get('/disable/:id', printerController.disable);
 
+router.get('/checkOnline/:id', printerController.checkOnline);
+
+router.get('/delete/:id', printerController.requestDelete);
+
+router.post('/update', printerController.updatePrinterInfo);
 
 module.exports = router;
