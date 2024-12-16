@@ -53,6 +53,7 @@ interface PrinterSummaryProps {
 interface PrintOptionsProps {
   totalPages: number; // Only passing totalPages here
   onChangeTotalPages: (newTotalPages: number) => void;
+  metafile: MetaInfo;
   setMetafile: React.Dispatch<React.SetStateAction<MetaInfo>>;
 }
 
@@ -102,7 +103,7 @@ const PrintConfirmationDialog: React.FC<PrintConfirmationDialogProps> = ({
             )}
           </p>
         </div>
-        <PrintOptions totalPages={updatedTotalPages} onChangeTotalPages={handleTotalPagesChange} setMetafile={setMetafile} />
+        <PrintOptions totalPages={updatedTotalPages} metafile={metafile} onChangeTotalPages={handleTotalPagesChange} setMetafile={setMetafile} />
         <DialogActions
           onBack={onBack}
           onClose={onClose}
@@ -145,18 +146,19 @@ const PrinterSummary: React.FC<PrinterSummaryProps> = ({ onChangePrinter, printe
 };
 
 
-const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPages, setMetafile }) => {
+const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPages, metafile, setMetafile }) => {
   const [pageNumbers, setPageNumbers] = useState<string>(''); // Store page numbers as input
   const [selectedSizePage, setSelectedSizePage] = useState<string>();
 
 
-  const [printType, setPrintType] = useState<'all' | 'even' | 'odd' | 'custom'>('all');
+  const [printType, setPrintType] = useState<'All' | 'Even' | 'Odd' | 'Custom'>('All');
 
 
 
   const [selectedLayout, setSelectedLayout] = useState<string>('Potrait');
   const [selectedColor, setSelectedColor] = useState<string>();
   const [numCopies, setNumCopies] = useState<number>(1);
+  const [selectedSide, setSelectSide] = useState<string>('Double-sided');
 
   const handleSizePageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const {value} = e.target;
@@ -167,19 +169,23 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
 
   //update handle Odd Even
   const handlePrintTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value as 'all' | 'even' | 'odd' | 'custom';
-    setMetafile(prev => ({...prev, oddEven: value}))
+    const value = e.target.value as 'All' | 'Even' | 'Odd' | 'Custom';
+    console.log(value);
+    
     setPrintType(value);
+
 
     let newTotalPages = totalPages;
 
-    if (value === 'all') {
-      newTotalPages = totalPages;
-    } else if (value === 'even') {
-      newTotalPages = Math.floor(totalPages / 2);
-    } else if (value === 'odd') {
-      newTotalPages = Math.ceil(totalPages / 2);
+    if (value === 'All') {
+      newTotalPages = metafile.Number_of_pages;
+    } else if (value === 'Even') {
+      newTotalPages = Math.floor(metafile.Number_of_pages / 2);
+    } else if (value === 'Odd') {
+      newTotalPages = Math.ceil(metafile.Number_of_pages / 2);
     }
+
+    setMetafile(prev => ({...prev, oddEven: value, Number_of_pages: newTotalPages}))
 
     onChangeTotalPages(newTotalPages * numCopies); 
   }
@@ -188,7 +194,7 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
   const handlePageNumbersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPageNumbers(value);
-    setPrintType('custom');
+    setPrintType('Custom');
 
     const pagesArray: number[] = [];
     value.split(',').forEach((part) => {
@@ -208,13 +214,49 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
       }
     });
 
-    
-
-
     const uniquePages = Array.from(new Set(pagesArray));
     const newTotalPages = uniquePages.length;
-    setMetafile(prev => ({...prev, Number_of_pages: newTotalPages}));
-    onChangeTotalPages(newTotalPages * numCopies); // Calculate total pages with copies
+    setMetafile(prev => ({...prev, oddEven: 'Custom', Number_of_pages: newTotalPages}))
+    onChangeTotalPages(newTotalPages * numCopies);
+    
+    // const value = e.target.value;
+    // setPageNumbers(value);
+    // setPrintType('Custom');
+
+    // console.log(value);
+    // if (printType === "All") setMetafile(prev => ({...prev, Number_of_pages: 10}));
+    // else if (printType === "Even") setMetafile(prev => ({...prev, Number_of_pages: 5}));
+    // else if (printType === "Odd") setMetafile(prev => ({...prev, Number_of_pages: 5}));
+    // else {
+    //   const pagesArray = value.split(',').map((num) => parseInt(num.trim(), 10)).filter((num) => !isNaN(num));
+    //   const newTotalPages = pagesArray.length;
+    //   setMetafile(prev => ({...prev, Number_of_pages: newTotalPages}));
+    //   onChangeTotalPages(newTotalPages);
+    // }
+
+
+    // const pagesArray: number[] = [];
+    // value.split(',').forEach((part) => {
+    //   part = part.trim();
+    //   if (part.includes('-')) {
+    //     const [start, end] = part.split('-').map((num) => parseInt(num.trim(), 10));
+    //     if (!isNaN(start) && !isNaN(end) && start <= end) {
+    //       for (let i = start; i <= end; i++) {
+    //         pagesArray.push(i);
+    //       }
+    //     }
+    //   } else {
+    //     const page = parseInt(part, 10);
+    //     if (!isNaN(page)) {
+    //       pagesArray.push(page);
+    //     }
+    //   }
+    // });
+
+    // const uniquePages = Array.from(new Set(pagesArray));
+    // const newTotalPages = uniquePages.length;
+    // setMetafile(prev => ({...prev, Number_of_pages: newTotalPages}));
+    // onChangeTotalPages(newTotalPages * numCopies); // Calculate total pages with copies
   };
 
   const handleSelectedColorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -228,17 +270,26 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
     const copies = parseInt(e.target.value, 10);
     if (!isNaN(copies) && copies > 0) {
       setNumCopies(copies);
-      onChangeTotalPages(totalPages * copies); 
+      console.log(copies);
+      setMetafile(prev => ({...prev, numCopies: copies}))
+      onChangeTotalPages(totalPages); 
     }
   };
 
-  const handleSelectedLayout = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectedLayout = (e: React.ChangeEvent<HTMLInputElement>) => {
     const {value} = e.target;
     console.log(value);
     setSelectedLayout(value);
+    setMetafile(prev => ({...prev, layout: value}));
+  }
+  const handleSideChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const {value} = e.target;
+    console.log(value);
+    setSelectSide(value);
+    setMetafile(prev => ({...prev, pageSide: value}));
   }
 
-  
+  console.log(metafile.Number_of_pages) //test
 
   return (
     <div className="print-options">
@@ -254,24 +305,40 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
       </div>
       <div className="option-group">
         <label className="option-label">Màu</label>
-        <select className="option-select" onChange={handleSelectedLayout}>
+        <select className="option-select" onChange={handleSelectedColorChange}>
           <option disabled value="none" selected>Chọn màu</option>
           <option value={"Black and white"}>Trắng đen</option>
           <option value={"Color"}>In màu</option>
         </select>
       </div>
 
-      <div className="option-group">
-        <label className="option-label">Bố cục</label>
-        <div className="radio-group">
-          <label className="radio-option">
-            <input type="radio" name="layout" value="dọc" />
-            <span>Dọc</span>
-          </label>
-          <label className="radio-option">
-            <input type="radio" name="layout" value="ngang" defaultChecked />
-            <span>Ngang</span>
-          </label>
+      <div className="option-landscape">
+        <div className="option-group">
+          <label className="option-label">Bố cục</label>
+          <div className="radio-group">
+            <label className="radio-option">
+              <input type="radio" name="layout" value="Potrait" onChange={handleSelectedLayout} />
+              <span>Dọc</span>
+            </label>
+            <label className="radio-option">
+              <input type="radio" name="layout" value="Landscape" onChange={handleSelectedLayout} />
+              <span>Ngang</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="option-group">
+          <label className="option-label">In mặt</label>
+          <div className="radio-group">
+            <label className="radio-option">
+              <input type="radio" name="pageSide" value="One-sided" onChange={handleSideChange} />
+              <span>In 1 mặt</span>
+            </label>
+            <label className="radio-option">
+              <input type="radio" name="pageSide" value="Double-sided" onChange={handleSideChange} />
+              <span>In 2 mặt</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -282,8 +349,8 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
             <input
               type="radio"
               name="print_type"
-              value="all"
-              checked={printType === 'all'}
+              value="All"
+              checked={printType === 'All'}
               onChange={handlePrintTypeChange}
             />
             <span>Tất cả</span>
@@ -292,8 +359,8 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
             <input
               type="radio"
               name="print_type"
-              value="even"
-              checked={printType === 'even'}
+              value="Even"
+              checked={printType === 'Even'}
               onChange={handlePrintTypeChange}
             />
             <span>Chẵn</span>
@@ -302,8 +369,8 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
             <input
               type="radio"
               name="print_type"
-              value="odd"
-              checked={printType === 'odd'}
+              value="Odd"
+              checked={printType === 'Odd'}
               onChange={handlePrintTypeChange}
             />
             <span>Lẻ</span>
@@ -312,15 +379,15 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
             <input
               type="radio"
               name="print_type"
-              value="custom"
-              checked={printType === 'custom'}
+              value="Custom"
+              checked={printType === 'Custom'}
               onChange={handlePrintTypeChange}
             />
             <span>Tùy chỉnh</span>
           </label>
         </div>
       </div>
-      {printType === 'custom' && (
+      {printType === 'Custom' && (
         <div className="option-group">
           <label className="option-label">Các trang cần in</label>
           <input
@@ -348,9 +415,9 @@ const PrintOptions: React.FC<PrintOptionsProps> = ({ totalPages, onChangeTotalPa
 
 
       {/* Total Pages Calculation */}
-      <div className="option-group">
-        <label className="option-label">Số trang: {totalPages}</label>
-      </div>
+      {/* <div className="option-group">
+        <label className="option-label">Số trang: {totalPages * numCopies}</label>
+      </div> */}
     </div>
       
       
@@ -379,7 +446,7 @@ const DialogActions: React.FC<DialogActionsProps> = ({ onBack, onClose, onStartP
             "Number_of_pages": metafile.Number_of_pages,
             "PrID": metafile.PrID,
             "order": {
-              "numCopies": 1, 
+              "numCopies": metafile.numCopies, 
               "printingColor": metafile.printingColor, 
               "pageSide": "Double-sided", 
               "sizePage": metafile.sizePage, 
@@ -410,9 +477,10 @@ const DialogActions: React.FC<DialogActionsProps> = ({ onBack, onClose, onStartP
           APIcallPrintOrder();
           
           
-          axios.post('http://localhost:8081/api/student/updateBalance', {id: ID, numberUpdate: metafile.Number_of_pages * -1}).then(
+          axios.post('http://localhost:8081/api/student/updateBalance', {id: ID, numberUpdate: totalPages * -1}).then(
             res => {
-              onStartPrinting(totalPages);
+              console.log(metafile.Number_of_pages)
+              onStartPrinting(metafile.Number_of_pages * metafile.numCopies);
               onClose();
             }
           );

@@ -54,6 +54,8 @@ const PrinterSelectionDialog: React.FC<PrinterSelectionDialogProps> = ({ onBack,
     (printer) => ({PrID: printer.PrID, name: printer.Model, features: printer.Short_description.split("; "), location: `Tầng ${printer.Floor} • Toà ${printer.Building}`})
   );
 
+  console.log(metafile.Number_of_pages); //test
+
   return (
     <div className="printer-selection-dialog">
       <div className="dialog-container">

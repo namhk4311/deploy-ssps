@@ -246,3 +246,7 @@
 .option-group {
   flex: 1;
 }
+
+.option-landscape{
+  display: flex;
+}

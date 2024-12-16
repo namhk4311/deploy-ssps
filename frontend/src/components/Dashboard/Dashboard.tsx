@@ -246,7 +246,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
   };
 
   const [selectedPrinter, setSelectedPrinter] = useState<Printer | null>(null);
-  const [totalPages, setTotalPages] = useState<number>(0); // Manage total pages state
+  const [totalPages, setTotalPages] = useState<number>(10); // Manage total pages state ??????????
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
@@ -414,7 +414,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
       <Footer />
 
       {currentDialog === 'print' && (
-        <PrintDialog onClose={handleCloseDialog} onContinue={handleContinueToPrinterSelection} setMetafile={setMetafile} />
+        <PrintDialog onClose={handleCloseDialog} onContinue={handleContinueToPrinterSelection} setMetafile={setMetafile} setTotalPages={setTotalPages} />
       )}
       {currentDialog === 'printer-selection' && (
         <PrinterSelectionDialog

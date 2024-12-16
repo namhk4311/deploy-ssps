@@ -212,7 +212,7 @@ const CurrentPrintOrder: React.FC<CurrentPrintOrderProps> = ({
       <h2>Thông báo</h2>
       <div className="print-order-status">
         <p>Không có gì đang được in</p>
-        <a
+        {/* <a
           href="#"
           onClick={(e) => {
             e.preventDefault();
@@ -220,7 +220,7 @@ const CurrentPrintOrder: React.FC<CurrentPrintOrderProps> = ({
           }}
         >
           Tạo lệnh in
-        </a>
+        </a> */}
       </div>
     </div>
   );
